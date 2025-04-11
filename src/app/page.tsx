@@ -1,10 +1,6 @@
 "use client";
-
-import Image from "next/image";
-import styles from "./page.module.css";
 import useAuth from "@/hooks/useAuth";
-import { getSession, useSession } from "next-auth/react";
-import { useEffect } from "react";
+import { useSession } from "next-auth/react";
 
 export default function Home() {
   const { handleSingOut } = useAuth();
