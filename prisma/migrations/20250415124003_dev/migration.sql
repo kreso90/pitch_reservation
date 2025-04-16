@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "FieldReservation" ALTER COLUMN "reservationDate" SET DATA TYPE TIMESTAMPTZ(2),
+ALTER COLUMN "reservationTime" SET DATA TYPE TIMESTAMPTZ(2);

@@ -8,16 +8,16 @@ generator client {
 }
 
 model User {
-  id            String          @id @default(uuid())
-  name          String?
-  password      String?
-  email         String          @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  // Optional for WebAuthn support
-  Authenticator Authenticator[]
+  id               String             @id @default(uuid())
+  name             String?
+  password         String?
+  email            String             @unique
+  emailVerified    DateTime?
+  image            String?
+  accounts         Account[]
+  sessions         Session[]
+  fieldReservation FieldReservation[] @relation("UserFieldReservation")
+  Authenticator    Authenticator[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -76,4 +76,33 @@ model Authenticator {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, credentialID])
+}
+
+model Facility {
+  facilityId        String           @id @unique
+  facilityAdminId   String           @unique
+  facilityAdmin     String
+  workingHoursStart DateTime
+  workingHoursEnd   DateTime
+  facilityFields    FacilityFields[] @relation("FacilityToFields")
+}
+
+model FacilityFields {
+  fieldId          String             @id @default(uuid())
+  facilityFieldId  String
+  fieldName        String
+  fieldType        String
+  fieldReservation FieldReservation[] @relation("FieldReservationsToFacilityFields")
+  facility         Facility           @relation("FacilityToFields", fields: [facilityFieldId], references: [facilityId])
+}
+
+model FieldReservation {
+  reservationId        String         @id @default(uuid())
+  fieldReservationId   String
+  reservationName      String
+  reservationStartTime DateTime       @db.Timestamptz(2)
+  reservationEndTime   DateTime       @db.Timestamptz(2)
+  facilityFields       FacilityFields @relation("FieldReservationsToFacilityFields", fields: [fieldReservationId], references: [fieldId], onDelete: Cascade)
+  userId               String
+  user                 User           @relation("UserFieldReservation", fields: [userId], references: [id], onDelete: Cascade)
 }

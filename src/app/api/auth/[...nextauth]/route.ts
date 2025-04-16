@@ -66,6 +66,9 @@ const authOptions: NextAuthOptions = {
               data: {
                 email: profile.email,
                 name: profile.name,
+                emailVerified: profile.email.endsWith('@gmail.com')
+                  ? new Date()
+                  : null,
               },
             });
   
