@@ -4,10 +4,11 @@ import { useCalendar } from '@/hooks/useCalendar'
 import { createFullDateFromLabel, formatDate, formatStringToDate, formatToISODateTime } from '@/utils/formatUtils';
 import { useSession } from 'next-auth/react';
 import React, { useActionState } from 'react'
+import { FaArrowRight, FaArrowLeft, FaCalendar } from "react-icons/fa";
 
 export default function Calendar() {
 
-    const {days, loading, getMaxHours, setFormMsg, formMsg, handleNextWeek, handleCancelButton, setIsCancelPopupOpen, isCancelPopupOpen, getReservationInfo, refreshFacilityData, getHourStreakPosition, handlePrevWeek, isSlotReserved, facilityData, isPopupOpen, reservationTime, reservationId, setIsPopupOpen, handleBoxClick} = useCalendar();
+    const {days, daysNavigation, selectedFieldId, setSelectedFieldId, getMaxHours, setFormMsg, formMsg, handleNextWeek, handleCancelButton, setIsCancelPopupOpen, isCancelPopupOpen, getReservationInfo, refreshFacilityData, getHourStreakPosition, handlePrevWeek, isSlotReserved, facilityData, isPopupOpen, reservationTime, reservationId, setIsPopupOpen, handleBoxClick} = useCalendar();
     const { data: session } = useSession()
     const startHour = new Date(facilityData?.workingHoursStart ?? '').getHours();
     const endHour = new Date(facilityData?.workingHoursEnd ?? '').getHours();   
@@ -42,18 +43,53 @@ export default function Calendar() {
   
     return (
         <div className="calendar">
-            <button onClick={handlePrevWeek}>Prev week</button>
-            <button onClick={handleNextWeek}>Next week</button>
-            {facilityData?.facilityFields.map((field, fieldIndex) => (
+
+            <div className="calendar__header">
                 
-                <div key={fieldIndex} className="calendar__grid">
-    
+                <select
+                    name="field_select"
+                    value={selectedFieldId}
+                    onChange={(e) => {
+                        setSelectedFieldId(e.target.value); 
+                        setIsPopupOpen(false); 
+                        setIsCancelPopupOpen(false);
+                    }}
+                >
+        
+                {facilityData?.facilityFields.map((field) => (
+                    <option key={field.fieldId} value={field.fieldId}>
+                    {field.fieldName}
+                    </option>
+                ))}
+                </select>
+
+                <div className="days-nav">
+                    <button className="round" onClick={handlePrevWeek}><FaArrowLeft size={12} color='#fff'/></button>
+                    <div className="days-nav__wrapper">
+                        <FaCalendar size={14}/>
+                        <span className="m-left-10">{daysNavigation.firstWeekDay} - {daysNavigation.lastWeekDay} {daysNavigation.month}</span>
+                    </div>
+                    <button className="round" onClick={handleNextWeek}><FaArrowRight size={12} color='#fff'/></button>
+                </div>
+
+            </div>
+       
+           
+            {facilityData?.facilityFields
+            .filter((field) => field.fieldId == selectedFieldId)
+            .map((field) => (
+                
+                <div key={field.fieldId} className="calendar__grid">
+                    
                     {days.map((day, index) => (
                         
                         <div key={index} className="calendar__column">
                             <p className="calendar__day">{formatStringToDate(day)}</p>
                           
                             {hours.map((hour) => {
+                                const fieldIndex = facilityData?.facilityFields.findIndex(
+                                    (field) => field.fieldId === selectedFieldId
+                                );
                                 const reservations = facilityData?.facilityFields[fieldIndex]?.fieldReservation ?? [];
                                 const slotDate = new Date(createFullDateFromLabel(day, hour));
                                 const isReserved = isSlotReserved(reservations, slotDate);

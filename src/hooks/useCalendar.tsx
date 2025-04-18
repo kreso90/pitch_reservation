@@ -21,6 +21,17 @@ export const useCalendar = () => {
     const [ getMaxHours, setMaxHours ] = useState<number>(1)
     const [ reservationId, setReservationId ] = useState<string>('')
     const [ formMsg, setFormMsg ] = useState<string | null>(null)
+    const [ selectedFieldId, setSelectedFieldId ] = useState<string>('');
+    const [ daysNavigation, setDaysNavigation ] = useState<{
+        firstWeekDay: string;
+        lastWeekDay: string;
+        month: string
+        }>({
+        firstWeekDay: '',
+        lastWeekDay: '',
+        month: ''
+    });
+      
 
     const getFacilityData = async () => {
         setLoading(true)
@@ -33,7 +44,7 @@ export const useCalendar = () => {
     
             const data: FacilityWithFields = await res.json();
             setFacilityData(data);
-
+            setSelectedFieldId(data.facilityFields[0].fieldId ?? '');
         } catch (error) {
             console.error('Error facility data:', error);
         } finally {
@@ -46,11 +57,21 @@ export const useCalendar = () => {
     };
     
     const generateWeek = () => {
-        const start = addDays(startOfWeek(new Date(), { weekStartsOn: 1 }), weekOffset * 7);
+        const start = addDays(startOfWeek(new Date(), { weekStartsOn: 1 }), weekOffset * 3);
         const newDays = Array.from({ length: 7 }).map((_, i) =>
             format(addDays(start, i), 'EEE do MMMM yyyy')
         );
         setDays(newDays);
+
+        const first = format(addDays(start, 0), 'do');
+        const last = format(addDays(start, newDays.length - 1), 'do');
+        const month = format(addDays(start, newDays.length - 1), 'MMMM');
+
+        setDaysNavigation({
+            firstWeekDay: first,
+            lastWeekDay: last,
+            month: month
+        });
     };
 
     const handleNextWeek = () => {
@@ -209,6 +230,9 @@ export const useCalendar = () => {
         getReservationInfo,
         getMaxHours,
         setFormMsg,
-        formMsg
+        formMsg,
+        setSelectedFieldId,
+        selectedFieldId,
+        daysNavigation
     };
 };

@@ -3,8 +3,9 @@ import { signIn, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
 const useAuth = () => {
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [authError, setAuthError] = useState<string>('')
+    const [ isSubmitting, setIsSubmitting ] = useState(false);
+    const [ authError, setAuthError ] = useState<string>('');
+
     const router = useRouter();
     
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {

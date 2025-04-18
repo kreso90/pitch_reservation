@@ -16,7 +16,7 @@ export const formatStringToDate = (dateStr: string): string => {
   const parsed = parse(dateStr, 'EEE do MMMM yyyy', new Date(), { locale: enUS });
   if (!isValid(parsed)) return 'No time available';
 
-  return format(parsed, 'EEE do MMMM', { locale: enUS });
+  return format(parsed, 'EEE do', { locale: enUS });
 };
 
 

@@ -1,22 +1,48 @@
 "use client";
+import Loader from "@/components/Loader";
 import useAuth from "@/hooks/useAuth";
+import Link from "next/link";
 import React from "react";
-import { useFormStatus } from "react-dom";
+import { TbBrandGoogleFilled  } from "react-icons/tb";
 
 export default function LoginPage() {
   const { handleLogin, handleGoogleLogin, isSubmitting, authError } = useAuth();
   
   return (
-    <>
-      <form onSubmit={handleLogin} className="p-4">
-        <input name="email" placeholder="Email" />
-        <input name="password" placeholder="Lozinka" type="password" />
-        <button type="submit" disabled={isSubmitting}>{isSubmitting ? 'log in' : 'logggggin'}</button>
-        <div>{isSubmitting ? 'Submitting...' : 'Form ready to submit'}</div>
-        <div>{authError}</div>
-      </form>
-      <button onClick={handleGoogleLogin}>Google login</button>
-      
-    </>
+    <div className="flex h-100vh">
+        <div className="form__wrapper">
+
+        <form onSubmit={handleLogin}>
+            <h1 className="form__title">Sign in</h1>
+
+            <div className="form__field">
+                    <label htmlFor="email">Email</label>
+                    <input 
+                        id="email"
+                        name="email" 
+                        placeholder="Email"/>
+                </div>
+
+                <div className="form__field m-bottom-30">
+                    <label htmlFor="password">Password</label>
+                    <input 
+                        id="password"
+                        name="password" 
+                        placeholder="Password"
+                        type="password"/>
+                </div>
+
+            <button type="submit" disabled={isSubmitting}>Sign in</button>
+
+            <div className="form__error">{authError ? authError as string : ''}</div>
+            <div className="border-title m-top-30 m-bottom-30"><span>or sign up with</span></div>
+
+        </form>
+
+        <button onClick={handleGoogleLogin}><TbBrandGoogleFilled size={20} />Sign in with Google</button>
+        <small>Don’t have an account? <Link href={"/register"}>Register here</Link></small>
+        {isSubmitting ? <Loader/> : null}
+        </div>
+    </div>
   );
 }

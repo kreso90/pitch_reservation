@@ -1,17 +1,35 @@
 "use client";
+import Calendar from "@/components/Calendar";
+import Loader from "@/components/Loader";
+import Nav from "@/components/Nav";
+import ReservationsList from "@/components/ReservationsList";
 import useAuth from "@/hooks/useAuth";
+import { useCalendar } from "@/hooks/useCalendar";
 import { useSession } from "next-auth/react";
 
 export default function Home() {
   const { handleSingOut } = useAuth();
-  const { data: session } = useSession()
+  const calendar = useCalendar();
 
   return (
-    <main>
-  
-      <button onClick={handleSingOut}>Sing out</button>
-      <div>{session?.user?.email}</div>
    
-    </main>
+ 
+    <div className="container">
+        <div className="row">
+
+            <div className="main__col">
+                <Nav />
+            </div>
+
+            <div className="main__col">
+                <Calendar />
+                <ReservationsList/>
+            </div>
+
+        </div>
+    </div>
+   
+  
+    
   );
 }

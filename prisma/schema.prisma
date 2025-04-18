@@ -79,7 +79,7 @@ model Authenticator {
 }
 
 model Facility {
-  facilityId        String           @id @unique
+  facilityId        String           @id @default(uuid())
   facilityAdminId   String           @unique
   facilityAdmin     String
   workingHoursStart DateTime

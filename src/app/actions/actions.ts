@@ -9,10 +9,15 @@ export async function createUser(prevState: any, formData: FormData) {
 
     const email = formData.get('email')?.toString();
     const password = formData.get('password')?.toString();
+    const confirmPassword = formData.get('confirm_password')?.toString();
     const name = formData.get('name')?.toString();
 
     if (!email || !password) {
-        return "Email and password are required.";
+        return "Please fill in all fields.";
+    }
+
+    if(confirmPassword != password){
+        return "Passwords do not match.";
     }
 
     const existingUser = await prisma.user.findUnique({

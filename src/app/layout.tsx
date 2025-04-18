@@ -13,7 +13,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html>
       <body className={montserrat.className}>
-        <SessionWrapper>{children}</SessionWrapper>
+        <main>
+          <SessionWrapper>{children}</SessionWrapper>
+        </main>
       </body>
     </html>
   );
