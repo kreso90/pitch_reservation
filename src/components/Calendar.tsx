@@ -1,27 +1,36 @@
 "use client"
 import { createReservation, deleteReservation } from '@/app/actions/actions';
 import { useCalendar } from '@/hooks/useCalendar'
-import { createFullDateFromLabel, formatDate, formatStringToDate, formatToISODateTime } from '@/utils/formatUtils';
-import { useSession } from 'next-auth/react';
-import React, { useActionState } from 'react'
-import { FaArrowRight, FaArrowLeft, FaCalendar } from "react-icons/fa";
+import { FacilityWithFields } from '@/types/facilityData';
+import { createDateFromStringAndNumber, formatDate, formatStringToDate, formatToISODateTime } from '@/utils/formatUtils';
+import React, { useActionState, useEffect } from 'react'
+import { TbCalendarMonth, TbArrowRight, TbArrowLeft } from "react-icons/tb";
 
-export default function Calendar() {
+type CalendarProps = {
+    facilityData: FacilityWithFields | null;
+    initialFieldId: string | null;
+    refreshFacilityData: () => Promise<void>;
+    userId: string,
+    userName: string
+};
 
-    const {days, daysNavigation, selectedFieldId, setSelectedFieldId, getMaxHours, setFormMsg, formMsg, handleNextWeek, handleCancelButton, setIsCancelPopupOpen, isCancelPopupOpen, getReservationInfo, refreshFacilityData, getHourStreakPosition, handlePrevWeek, isSlotReserved, facilityData, isPopupOpen, reservationTime, reservationId, setIsPopupOpen, handleBoxClick} = useCalendar();
-    const { data: session } = useSession()
+export default function Calendar({ facilityData, initialFieldId, refreshFacilityData, userId, userName }: CalendarProps) {
+
+    const { days, getDayWorkingHours, isSameDate, daysNavigation, selectedFieldId, setSelectedFieldId, getMaxHours, setFormMsg, formMsg, handleNextWeek, handleCancelButton, setIsCancelPopupOpen, isCancelPopupOpen, getReservationInfo, getHourStreakPosition, handlePrevWeek, isSlotReserved, isPopupOpen, reservationTime, reservationId, setIsPopupOpen, handleBoxClick, isPrevDate } = useCalendar();
+   
     const startHour = new Date(facilityData?.workingHoursStart ?? '').getHours();
     const endHour = new Date(facilityData?.workingHoursEnd ?? '').getHours();   
     const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
+
+    useEffect(() => {
+        setSelectedFieldId(initialFieldId ?? '')
+    }, [initialFieldId])
     
     const [state, formAction, isPending] = useActionState(
         async (prevState: any, formData: FormData) => {
             const result = await createReservation(prevState, formData);
         
-            if (result) {
-                await refreshFacilityData();
-            }
-            
+            await refreshFacilityData();
             setFormMsg(result ?? null); 
             return result;
         },
@@ -32,10 +41,7 @@ export default function Calendar() {
         async (prevState: any, formData: FormData) => {
             const result = await deleteReservation(prevState, formData);
         
-            if (result === "success") {
-                await refreshFacilityData();
-            }
-        
+            await refreshFacilityData();
             return result;
         },
         null
@@ -64,70 +70,113 @@ export default function Calendar() {
                 </select>
 
                 <div className="days-nav">
-                    <button className="round" onClick={handlePrevWeek}><FaArrowLeft size={12} color='#fff'/></button>
+                    <button className="round" onClick={handlePrevWeek}><TbArrowLeft size={14} color='#fff'/></button>
                     <div className="days-nav__wrapper">
-                        <FaCalendar size={14}/>
+                        <TbCalendarMonth size={16}/>
                         <span className="m-left-10">{daysNavigation.firstWeekDay} - {daysNavigation.lastWeekDay} {daysNavigation.month}</span>
                     </div>
-                    <button className="round" onClick={handleNextWeek}><FaArrowRight size={12} color='#fff'/></button>
+                    <button className="round" onClick={handleNextWeek}><TbArrowRight size={14} color='#fff'/></button>
                 </div>
 
             </div>
        
            
             {facilityData?.facilityFields
-            .filter((field) => field.fieldId == selectedFieldId)
-            .map((field) => (
-                
-                <div key={field.fieldId} className="calendar__grid">
-                    
-                    {days.map((day, index) => (
+                .filter((field) => field.fieldId == selectedFieldId)
+                .map((field) => {
+                    return (
+                    <div key={field.fieldId} className="calendar__grid">
+                        {days.map((day, index) => {
+                            
+                        const startHour = new Date(facilityData?.workingHoursStart ?? '').getHours();
+                        const endHour = new Date(facilityData?.workingHoursEnd ?? '').getHours();
+                        let hours: number[] = [];
                         
-                        <div key={index} className="calendar__column">
+                        if (facilityData.specialWorkingHours.length) {
+                            const specialWorkingHourEntry = facilityData.specialWorkingHours.find(swh =>
+                            isSameDate(new Date(swh.date),  new Date(createDateFromStringAndNumber(day, 0)))
+                            );
+                        
+                            if (specialWorkingHourEntry?.startTime != null && specialWorkingHourEntry.endTime != null) {
+                                hours = getDayWorkingHours(specialWorkingHourEntry.startTime, specialWorkingHourEntry.endTime);
+                            } else if (specialWorkingHourEntry) {
+                                hours = [];
+                            } else if (facilityData?.workingHours?.length) {
+                                const workingHourEntry = facilityData.workingHours.find(wh => wh.dayOfWeek === index);
+                            
+                                if (workingHourEntry) {
+                                    hours = workingHourEntry.isClosed
+                                    ? []
+                                    : getDayWorkingHours(workingHourEntry.startTime, workingHourEntry.endTime);
+                                } else {
+                                    hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
+                                }
+                            } else {
+                                hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
+                            }
+                        }
+                            
+                        return (
+                            <div key={index} className="calendar__column">
                             <p className="calendar__day">{formatStringToDate(day)}</p>
-                          
+
                             {hours.map((hour) => {
                                 const fieldIndex = facilityData?.facilityFields.findIndex(
-                                    (field) => field.fieldId === selectedFieldId
+                                (field) => field.fieldId === selectedFieldId
                                 );
                                 const reservations = facilityData?.facilityFields[fieldIndex]?.fieldReservation ?? [];
-                                const slotDate = new Date(createFullDateFromLabel(day, hour));
+                                const slotDate = new Date(createDateFromStringAndNumber(day, hour));
                                 const isReserved = isSlotReserved(reservations, slotDate);
                                 const streakStatus = getHourStreakPosition(reservations, slotDate);
-                                const reservationInfo = getReservationInfo(reservations, slotDate, session?.user.id ?? '');
+                                const reservationInfo = getReservationInfo(reservations, slotDate, userId ?? '');
+                                const isPrevDates = isPrevDate(slotDate);
 
                                 return (
-                                    <div key={hour} className={`calendar__box ${isReserved ? 'reserved' : ''} ${reservationInfo?.isReservedByUser ? `reserved-by-user` : ''} ${streakStatus ? `calendar__box--${streakStatus}` : ''}`}
-                                        onClick={!isReserved ? () =>
+                                <div
+                                    key={hour}
+                                    className={`calendar__box ${isReserved || isPrevDates ? 'reserved' : ''} ${reservationInfo?.isReservedByUser ? `reserved-by-user` : ''} ${streakStatus ? `calendar__box--${streakStatus}` : ''}`}
+                                    onClick={
+                                    !isReserved && !isPrevDates
+                                        ? () =>
                                             handleBoxClick(
-                                            session?.user?.id ?? '',
+                                            userId ?? '',
                                             field.fieldId,
                                             field.fieldName,
-                                            createFullDateFromLabel(day, hour),
+                                            createDateFromStringAndNumber(day, hour),
                                             new Date(day),
-                                            facilityData.workingHoursEnd,
+                                            createDateFromStringAndNumber(day, parseInt(facilityData.workingHours[index].endTime.split(':')[0])),
                                             facilityData.facilityFields[fieldIndex].fieldReservation
-                                            ) : () => {}
-                                        }
-                                        >
-
-                                        <div className="calendar__box__top place-space-between m-bottom-20">
-                                            <span>{hour}:00</span>
-                                            {reservationInfo?.isReservedByUser ? <span onClick={() => handleCancelButton(reservationInfo?.reservationId ?? '')}>Cancel</span> : <span></span>}
-                                        </div>
-
-                                        <div className="calendar__box__bottom place-space-between">
-                                            <span className="light-grey">{reservationInfo?.isReservedByUser ? 'Reserved by you' : '40.00 €'}</span>
-                                        </div>
+                                            )
+                                        : () => {}
+                                    }
+                                >
+                                    <div className="calendar__box__top place-space-between m-bottom-20">
+                                    <span>{hour}:00</span>
+                                    {reservationInfo?.isReservedByUser &&
+                                    new Date(createDateFromStringAndNumber(day, hour)) > new Date() ? (
+                                        <span onClick={() => handleCancelButton(reservationInfo?.reservationId ?? '')}>
+                                        Cancel
+                                        </span>
+                                    ) : (
+                                        <span></span>
+                                    )}
                                     </div>
-                                    );
-                                })}
-                            
-                        </div>
-                    ))}
-                
-                </div> 
-            ))}
+
+                                    <div className="calendar__box__bottom place-space-between">
+                                    <span className="light-grey">
+                                        {reservationInfo?.isReservedByUser ? 'Reserved by you' : '40.00 €'}
+                                    </span>
+                                    </div>
+                                </div>
+                                );
+                            })}
+                            </div>
+                        );
+                        })}
+                    </div>
+                    );
+                })}
+
             
             {isPopupOpen && (
                 <div className="popup">
@@ -137,7 +186,7 @@ export default function Calendar() {
                             <p>Do you want to reserve {reservationTime?.reservationName} on {formatDate(reservationTime?.reservationStartTime)}?</p>                    
                             <input type="hidden" name='field_reservation_id' value={reservationTime?.fieldReservationId}/>
                             <input type="hidden" name='user_id' value={reservationTime?.userId}/>
-                            <input type="hidden" name="reservation_name" value={session?.user?.name ?? 'Unknown'} />
+                            <input type="hidden" name="reservation_name" value={userName ?? 'Unknown'} />
                             <input type="hidden" name="reservation_start" value={formatToISODateTime(formatDate(reservationTime?.reservationStartTime))} />
                             <p>Select number of hours {formatDate(reservationTime?.reservationStartTime)}</p>
                             <select name="reservation_end">

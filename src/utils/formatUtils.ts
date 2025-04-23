@@ -20,7 +20,7 @@ export const formatStringToDate = (dateStr: string): string => {
 };
 
 
-export const createFullDateFromLabel = (dayLabel: string, hour?: number): Date => {
+export const createDateFromStringAndNumber = (dayLabel: string, hour?: number): Date => {
   const parsedDate = parse(dayLabel, 'EEE do MMMM yyyy', new Date());
 
   const year = parsedDate.getFullYear();

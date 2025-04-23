@@ -2,13 +2,18 @@ import useAuth from "@/hooks/useAuth";
 import React from "react";
 import { TbSoccerField, TbCalendarMonth, TbClockHour4, TbLogout } from "react-icons/tb";
 
-export default function Nav() {
+type NavProps = {
+    activeView: 'calendar' | 'reservations';
+    setActiveView: (view: 'calendar' | 'reservations') => void;
+};
+
+export default function Nav({ activeView, setActiveView }: NavProps) {
   const { handleSingOut } = useAuth();
   return (
     <div>
         <nav>
             <ul>
-                <li>
+                <li onClick={() => setActiveView('calendar')} >
                     <TbCalendarMonth size={20} />
                     <span>Calendar</span>
                 </li>
@@ -16,7 +21,7 @@ export default function Nav() {
                     <TbSoccerField size={20} />
                     <span>Fields</span>
                 </li>
-                <li>
+                <li onClick={() => setActiveView('reservations')} >
                     <TbClockHour4 size={20} />
                     <span>Reservations</span>
                 </li>

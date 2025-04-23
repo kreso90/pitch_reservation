@@ -79,12 +79,41 @@ model Authenticator {
 }
 
 model Facility {
-  facilityId        String           @id @default(uuid())
-  facilityAdminId   String           @unique
-  facilityAdmin     String
-  workingHoursStart DateTime
-  workingHoursEnd   DateTime
-  facilityFields    FacilityFields[] @relation("FacilityToFields")
+  facilityId          String                @id @default(uuid())
+  facilityAdminId     String                @unique
+  facilityAdmin       String
+  workingHoursStart   DateTime
+  workingHoursEnd     DateTime
+  facilityFields      FacilityFields[]      @relation("FacilityToFields")
+  workingHours        WorkingHours[]        @relation("FacilityToWorkingHours")
+  specialWorkingHours SpecialWorkingHours[] @relation("FacilityToSpecialWorkingHours")
+}
+
+model WorkingHours {
+  id         String @id @default(uuid())
+  facilityId String
+  dayOfWeek  Int
+  startTime  String
+  endTime    String
+  isClosed   Boolean  @default(false)
+
+  facility Facility @relation("FacilityToWorkingHours", fields: [facilityId], references: [facilityId], onDelete: Cascade)
+
+  @@unique([facilityId, dayOfWeek])
+}
+
+model SpecialWorkingHours {
+  id         String   @id @default(uuid())
+  facilityId String
+  date       DateTime
+  startTime  String?
+  endTime    String?
+  note       String?
+
+
+  facility Facility @relation("FacilityToSpecialWorkingHours", fields: [facilityId], references: [facilityId], onDelete: Cascade)
+
+  @@unique([facilityId, date])
 }
 
 model FacilityFields {

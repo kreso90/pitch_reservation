@@ -5,6 +5,7 @@
   --lightGrey: rgb(156, 156, 156);
   --white: rgb(221, 230, 237);
   --green: rgb(0, 113, 45);
+  --red: rgb(170, 30, 60);
   --lightGreen: rgb(213, 237, 159);
 }
 
@@ -86,16 +87,43 @@ small{
   height: 100vh;
 }
 
+.c-pointer{cursor: pointer;}
+
 /* Navigation */
 
 nav ul li{
   margin-bottom: 30px;
   display: flex;
   font-weight: 500;
+  cursor: pointer;
+  transition: 0.25s;
+  color: var(--lightGrey)
+}
+
+nav ul li:hover{
+  color: var(--white);
 }
 
 nav ul li svg{
   margin-right: 5px;
+}
+
+.search-nav{
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 20px;
+}
+
+@media(min-width: 380px){
+  .search-nav{
+    grid-template-columns: repeat(2, 1fr);
+  } 
+}
+
+@media(min-width: 768px){
+  .search-nav{
+    grid-template-columns: repeat(4, 1fr);
+  }  
 }
 
 /* Loader */
@@ -154,6 +182,7 @@ select{
   font-weight: 500;
 }
 
+select.input,
 input{
   padding: 10px;
   color: var(--white);
@@ -161,6 +190,10 @@ input{
   border: 1px solid var(--lightGrey);
   border-radius: 5px;
   width: 100%;
+}
+
+select.input{
+  padding: 8px 10px;
 }
 
 label{
@@ -249,6 +282,25 @@ input[type=radio]:checked::before {
   margin-left: 5px;
 }
 
+.react-datepicker-wrapper{
+  width: 100%;
+}
+
+button.react-datepicker__close-icon:hover{
+  background: transparent !important;
+  border: 1px solid var(--lightGrey) !important;
+  color: var(--white) !important;
+}
+
+.react-datepicker__close-icon::after{
+  position: absolute;
+  right: 10px;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  background-color: var(--lightGrey) !important;
+}
+
 /* Buttons */
 
 button{
@@ -301,6 +353,13 @@ button:hover{
 .dark-grey{color: var(--darkGrey);}
 .light-grey{color: var(--lightGrey);}
 .white{color: var(--white);}
+.red{color: var(--red);}
+
+/* Font weight */
+
+.regular{font-weight: 400;}
+.semi-bold{font-weight: 500;}
+.bold{font-weight: 700;}
 
 /* Flex */
 
@@ -685,6 +744,33 @@ button:hover{
 .m-top-30{margin-top: 30px;}
 
 .m-left-10{margin-left: 10px;}
+
+/* Padding */
+
+.p-0{padding: 0}
+
+.p-bottom-0{padding-bottom: 0}
+.p-bottom-5{padding-bottom: 5px;}
+.p-bottom-10{padding-bottom: 10px;}
+.p-bottom-15{padding-bottom: 15px;}
+.p-bottom-20{padding-bottom: 20px;}
+.p-bottom-30{padding-bottom: 30px;}
+.p-bottom-40{padding-bottom: 40px;}
+.p-bottom-50{padding-bottom: 50px;}
+
+.p-top-0{padding-top: 0}
+.p-top-5{padding-top: 5px;}
+.p-top-10{padding-top: 10px;}
+.p-top-15{padding-top: 15px;}
+.p-top-20{padding-top: 20px;}
+.p-top-30{padding-top: 30px;}
+
+.p-left-10{padding-left: 10px;}
+
+/* Border */
+
+.b-bottom-1-white{border-bottom: 1px solid var(--white);}
+.b-bottom-2-white{border-bottom: 2px solid var(--white);}
 
 /* Text aligment */
 

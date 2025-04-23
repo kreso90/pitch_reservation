@@ -1,27 +1,20 @@
 import { useState, useEffect } from 'react'
 import { format } from 'date-fns/format';
 import { addDays, startOfWeek } from 'date-fns';
-import { Facility, FacilityFields, FieldReservation } from '@prisma/client';
+import { FieldReservation } from '@prisma/client';
 import { combineDateAndTime, formatToISODateTime, formatDate } from '@/utils/formatUtils';
-
-type FacilityWithFields = Facility & {
-    facilityFields: (FacilityFields & {
-        fieldReservation: FieldReservation[];
-    })[];
-};
   
 export const useCalendar = () => {
     const [ days, setDays ] = useState<string[]>([]);
-    const [ facilityData, setFacilityData ] = useState<FacilityWithFields | null>(null);
     const [ weekOffset, setWeekOffset ] = useState(0);
-    const [ loading, setLoading ] = useState(false);
+    const [ selectedFieldId, setSelectedFieldId ] = useState<string>('');
     const [ isPopupOpen, setIsPopupOpen ] = useState(false);
     const [ isCancelPopupOpen, setIsCancelPopupOpen ] = useState(false);
     const [ reservationTime, setReservationTime ] = useState<FieldReservation | null>(null);
     const [ getMaxHours, setMaxHours ] = useState<number>(1)
     const [ reservationId, setReservationId ] = useState<string>('')
     const [ formMsg, setFormMsg ] = useState<string | null>(null)
-    const [ selectedFieldId, setSelectedFieldId ] = useState<string>('');
+
     const [ daysNavigation, setDaysNavigation ] = useState<{
         firstWeekDay: string;
         lastWeekDay: string;
@@ -32,32 +25,9 @@ export const useCalendar = () => {
         month: ''
     });
       
-
-    const getFacilityData = async () => {
-        setLoading(true)
-        try {
-            const res = await fetch('/api/facility');
-
-            if (!res.ok) {
-                throw new Error(`Error status: ${res.status}`);
-            }
-    
-            const data: FacilityWithFields = await res.json();
-            setFacilityData(data);
-            setSelectedFieldId(data.facilityFields[0].fieldId ?? '');
-        } catch (error) {
-            console.error('Error facility data:', error);
-        } finally {
-            setLoading(false)
-        }
-    };
-
-    const refreshFacilityData = async () => {
-        await getFacilityData();
-    };
     
     const generateWeek = () => {
-        const start = addDays(startOfWeek(new Date(), { weekStartsOn: 1 }), weekOffset * 3);
+        const start = addDays(startOfWeek(new Date(), { weekStartsOn: 1 }), weekOffset * 7);
         const newDays = Array.from({ length: 7 }).map((_, i) =>
             format(addDays(start, i), 'EEE do MMMM yyyy')
         );
@@ -112,6 +82,12 @@ export const useCalendar = () => {
             return check >= start && check < end;
         });
     };
+
+    const isPrevDate = (dateToCheck: Date) => {
+      const currentTime = new Date().getTime();
+      return dateToCheck.getTime() < currentTime;
+    };
+    
     
     const getReservationInfo = (
         reservations: FieldReservation[],
@@ -135,8 +111,6 @@ export const useCalendar = () => {
       
         return null;
     };
-      
-      
 
     const getHourStreakPosition = (
         reservations: FieldReservation[],
@@ -164,7 +138,18 @@ export const useCalendar = () => {
       
         return null;
       };
+  
+    function getDayWorkingHours(
+      dayStartHour: string,
+      dayEndHour: string
+    ): number[] {
+
+      const startHour = parseInt(dayStartHour.split(':')[0]);
+      const endHour = parseInt(dayEndHour.split(':')[0]);
+      const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
       
+      return hours;
+    }
 
     function getMaxAvailableHours(
         reservations: FieldReservation[],
@@ -201,9 +186,13 @@ export const useCalendar = () => {
         return count;
     }
 
-    useEffect(() => {
-        getFacilityData()
-    }, [])
+    function isSameDate(d1: Date, d2: Date): boolean {
+      return (
+        d1.getDate() === d2.getDate() &&
+        d1.getMonth() === d2.getMonth() &&
+        d1.getFullYear() === d2.getFullYear()
+      );
+    }
 
     useEffect(() => {
         generateWeek();
@@ -211,8 +200,6 @@ export const useCalendar = () => {
 
     return {
         days,
-        loading,
-        facilityData,
         handleNextWeek,
         handlePrevWeek,
         isPopupOpen,
@@ -226,13 +213,15 @@ export const useCalendar = () => {
         isSlotReserved,
         getHourStreakPosition,
         getMaxAvailableHours,
-        refreshFacilityData,
         getReservationInfo,
         getMaxHours,
         setFormMsg,
         formMsg,
+        daysNavigation,
         setSelectedFieldId,
         selectedFieldId,
-        daysNavigation
+        isPrevDate,
+        getDayWorkingHours,
+        isSameDate
     };
 };

@@ -5,6 +5,8 @@ export async function GET() {
     try {
         const facility = await prisma.facility.findFirst({
             include: {
+                specialWorkingHours: true,
+                workingHours: true,
                 facilityFields: {
                     include: {
                         fieldReservation: true,
