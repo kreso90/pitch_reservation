@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { format } from 'date-fns/format';
 import { addDays, startOfWeek } from 'date-fns';
-import { FieldReservation } from '@prisma/client';
+import { FieldReservation, HourlyPricing, WorkingHours } from '@prisma/client';
 import { combineDateAndTime, formatToISODateTime, formatDate } from '@/utils/formatUtils';
   
 export const useCalendar = () => {
@@ -151,6 +151,23 @@ export const useCalendar = () => {
       return hours;
     }
 
+    function getPriceForHour(
+      hourlyPricing: HourlyPricing[],
+      dayOfWeek: number,
+      hour: number,
+      selectedFieldId?: string
+    ): number {
+      const priceEntry = hourlyPricing.find(p =>
+        p.dayOfWeek === dayOfWeek &&
+        (p.fieldId === null || p.fieldId === selectedFieldId) &&
+        hour >= parseInt(p.startTime.split(':')[0]) &&
+        hour <= parseInt(p.endTime.split(':')[0])
+      );
+    
+      return priceEntry?.price ?? 40;
+    }
+    
+
     function getMaxAvailableHours(
         reservations: FieldReservation[],
         startTime: Date,
@@ -186,12 +203,61 @@ export const useCalendar = () => {
         return count;
     }
 
-    function isSameDate(d1: Date, d2: Date): boolean {
+    function isSameDate(d1: Date | string, d2: Date | string): boolean {
+      const date1 = new Date(d1);
+      const date2 = new Date(d2);
+    
       return (
-        d1.getDate() === d2.getDate() &&
-        d1.getMonth() === d2.getMonth() &&
-        d1.getFullYear() === d2.getFullYear()
+        date1.getDate() === date2.getDate() &&
+        date1.getMonth() === date2.getMonth() &&
+        date1.getFullYear() === date2.getFullYear()
       );
+    }
+    
+
+    function getWorkingHoursForDay(
+      workingHours: WorkingHours[],
+      workingHoursStart: string | Date,
+      workingHoursEnd: string | Date,
+      day: Date,
+      index: number,
+      selectedFieldId?: string
+    ): number[] {
+      const startHour = new Date(workingHoursStart ?? '').getHours();
+      const endHour = new Date(workingHoursEnd ?? '').getHours();
+    
+      const hasSpecificDate = workingHours?.some(wh =>
+        wh.date &&
+        isSameDate(wh.date, new Date(day)) &&
+        (wh.fieldId === selectedFieldId || wh.fieldId === null)
+      );
+    
+      if (hasSpecificDate) {
+        const workingHourEntry = workingHours.find(wh =>
+          wh.date &&
+          isSameDate(new Date(wh.date), new Date(day)) &&
+          (wh.fieldId === selectedFieldId || wh.fieldId === null)
+        );
+    
+        if (workingHourEntry) {
+          return workingHourEntry.isClosed
+            ? []
+            : getDayWorkingHours(workingHourEntry.startTime, workingHourEntry.endTime);
+        }
+      } else {
+        const workingHourEntry = workingHours.find(wh =>
+          wh.dayOfWeek === index &&
+          (wh.fieldId === selectedFieldId || wh.fieldId === null)
+        );
+    
+        if (workingHourEntry) {
+          return workingHourEntry.isClosed
+            ? []
+            : getDayWorkingHours(workingHourEntry.startTime, workingHourEntry.endTime);
+        }
+      }
+    
+      return Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
     }
 
     useEffect(() => {
@@ -222,6 +288,8 @@ export const useCalendar = () => {
         selectedFieldId,
         isPrevDate,
         getDayWorkingHours,
-        isSameDate
+        isSameDate,
+        getWorkingHoursForDay,
+        getPriceForHour
     };
 };

@@ -16,11 +16,7 @@ type CalendarProps = {
 
 export default function Calendar({ facilityData, initialFieldId, refreshFacilityData, userId, userName }: CalendarProps) {
 
-    const { days, getDayWorkingHours, isSameDate, daysNavigation, selectedFieldId, setSelectedFieldId, getMaxHours, setFormMsg, formMsg, handleNextWeek, handleCancelButton, setIsCancelPopupOpen, isCancelPopupOpen, getReservationInfo, getHourStreakPosition, handlePrevWeek, isSlotReserved, isPopupOpen, reservationTime, reservationId, setIsPopupOpen, handleBoxClick, isPrevDate } = useCalendar();
-   
-    const startHour = new Date(facilityData?.workingHoursStart ?? '').getHours();
-    const endHour = new Date(facilityData?.workingHoursEnd ?? '').getHours();   
-    const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
+    const { days, isSameDate, getWorkingHoursForDay, daysNavigation, selectedFieldId, setSelectedFieldId, getMaxHours, setFormMsg, formMsg, handleNextWeek, handleCancelButton, setIsCancelPopupOpen, isCancelPopupOpen, getReservationInfo, getHourStreakPosition, handlePrevWeek, isSlotReserved, isPopupOpen, reservationTime, reservationId, setIsPopupOpen, handleBoxClick, isPrevDate, getPriceForHour } = useCalendar();
 
     useEffect(() => {
         setSelectedFieldId(initialFieldId ?? '')
@@ -88,39 +84,35 @@ export default function Calendar({ facilityData, initialFieldId, refreshFacility
                     <div key={field.fieldId} className="calendar__grid">
                         {days.map((day, index) => {
                             
-                        const startHour = new Date(facilityData?.workingHoursStart ?? '').getHours();
-                        const endHour = new Date(facilityData?.workingHoursEnd ?? '').getHours();
-                        let hours: number[] = [];
-                        
-                        if (facilityData.specialWorkingHours.length) {
-                            const specialWorkingHourEntry = facilityData.specialWorkingHours.find(swh =>
-                            isSameDate(new Date(swh.date),  new Date(createDateFromStringAndNumber(day, 0)))
-                            );
-                        
-                            if (specialWorkingHourEntry?.startTime != null && specialWorkingHourEntry.endTime != null) {
-                                hours = getDayWorkingHours(specialWorkingHourEntry.startTime, specialWorkingHourEntry.endTime);
-                            } else if (specialWorkingHourEntry) {
-                                hours = [];
-                            } else if (facilityData?.workingHours?.length) {
-                                const workingHourEntry = facilityData.workingHours.find(wh => wh.dayOfWeek === index);
-                            
-                                if (workingHourEntry) {
-                                    hours = workingHourEntry.isClosed
-                                    ? []
-                                    : getDayWorkingHours(workingHourEntry.startTime, workingHourEntry.endTime);
-                                } else {
-                                    hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
-                                }
-                            } else {
-                                hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
-                            }
-                        }
-                            
+                        const hours = getWorkingHoursForDay(
+                            facilityData.workingHours,
+                            facilityData.workingHoursStart,
+                            facilityData.workingHoursEnd,
+                            new Date(createDateFromStringAndNumber(day, 0)),
+                            index,
+                            selectedFieldId
+                        );
+
+                        const dayWorkingHours = facilityData.workingHours.find(
+                            (wh) =>
+                                wh.date &&
+                                isSameDate(new Date(wh.date),  new Date(createDateFromStringAndNumber(day, 0))) &&
+                                (wh.fieldId === selectedFieldId || wh.fieldId === null)
+                          ) ?? facilityData.workingHours.find(
+                            (wh) =>
+                                wh.dayOfWeek != null &&
+                                wh.dayOfWeek === index &&
+                                (wh.fieldId === selectedFieldId || wh.fieldId === null)
+                          );
+     
+                        const endHour = dayWorkingHours?.endTime ?? new Date(facilityData.workingHoursEnd ?? '23:00').getHours().toString();
+                       
+                
                         return (
                             <div key={index} className="calendar__column">
                             <p className="calendar__day">{formatStringToDate(day)}</p>
 
-                            {hours.map((hour) => {
+                            {hours.length > 0 ? (hours.map((hour) => {
                                 const fieldIndex = facilityData?.facilityFields.findIndex(
                                 (field) => field.fieldId === selectedFieldId
                                 );
@@ -130,6 +122,7 @@ export default function Calendar({ facilityData, initialFieldId, refreshFacility
                                 const streakStatus = getHourStreakPosition(reservations, slotDate);
                                 const reservationInfo = getReservationInfo(reservations, slotDate, userId ?? '');
                                 const isPrevDates = isPrevDate(slotDate);
+                                const pricingEntry = getPriceForHour(facilityData.hourlyPricing, index, hour, selectedFieldId)
 
                                 return (
                                 <div
@@ -137,16 +130,17 @@ export default function Calendar({ facilityData, initialFieldId, refreshFacility
                                     className={`calendar__box ${isReserved || isPrevDates ? 'reserved' : ''} ${reservationInfo?.isReservedByUser ? `reserved-by-user` : ''} ${streakStatus ? `calendar__box--${streakStatus}` : ''}`}
                                     onClick={
                                     !isReserved && !isPrevDates
-                                        ? () =>
+                                        ? () =>{
                                             handleBoxClick(
                                             userId ?? '',
                                             field.fieldId,
                                             field.fieldName,
                                             createDateFromStringAndNumber(day, hour),
                                             new Date(day),
-                                            createDateFromStringAndNumber(day, parseInt(facilityData.workingHours[index].endTime.split(':')[0])),
+                                            createDateFromStringAndNumber(day, parseInt(endHour.split(':')[0])),
                                             facilityData.facilityFields[fieldIndex].fieldReservation
-                                            )
+                                            ) 
+                                            console.log(endHour)}
                                         : () => {}
                                     }
                                 >
@@ -164,12 +158,20 @@ export default function Calendar({ facilityData, initialFieldId, refreshFacility
 
                                     <div className="calendar__box__bottom place-space-between">
                                     <span className="light-grey">
-                                        {reservationInfo?.isReservedByUser ? 'Reserved by you' : '40.00 €'}
+                                        {reservationInfo?.isReservedByUser ? 'Reserved by you' : pricingEntry + '€'}
+                                        
                                     </span>
                                     </div>
                                 </div>
                                 );
-                            })}
+                            })) : 
+                            <div className="calendar__box">
+                                <div className="calendar__box__top place-space-between m-bottom-20">
+                                    <span>Non-working day</span>
+                                    <span></span>
+                                </div>
+                            </div>
+                            }
                             </div>
                         );
                         })}

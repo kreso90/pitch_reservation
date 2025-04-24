@@ -86,43 +86,50 @@ model Facility {
   workingHoursEnd     DateTime
   facilityFields      FacilityFields[]      @relation("FacilityToFields")
   workingHours        WorkingHours[]        @relation("FacilityToWorkingHours")
-  specialWorkingHours SpecialWorkingHours[] @relation("FacilityToSpecialWorkingHours")
-}
-
-model WorkingHours {
-  id         String @id @default(uuid())
-  facilityId String
-  dayOfWeek  Int
-  startTime  String
-  endTime    String
-  isClosed   Boolean  @default(false)
-
-  facility Facility @relation("FacilityToWorkingHours", fields: [facilityId], references: [facilityId], onDelete: Cascade)
-
-  @@unique([facilityId, dayOfWeek])
-}
-
-model SpecialWorkingHours {
-  id         String   @id @default(uuid())
-  facilityId String
-  date       DateTime
-  startTime  String?
-  endTime    String?
-  note       String?
-
-
-  facility Facility @relation("FacilityToSpecialWorkingHours", fields: [facilityId], references: [facilityId], onDelete: Cascade)
-
-  @@unique([facilityId, date])
+  hourlyPricing       HourlyPricing[]       @relation("FacilityToPricing")
 }
 
 model FacilityFields {
-  fieldId          String             @id @default(uuid())
-  facilityFieldId  String
-  fieldName        String
-  fieldType        String
-  fieldReservation FieldReservation[] @relation("FieldReservationsToFacilityFields")
-  facility         Facility           @relation("FacilityToFields", fields: [facilityFieldId], references: [facilityId])
+  fieldId             String                @id @default(uuid())
+  facilityFieldId     String
+  fieldName           String
+  fieldType           String
+  fieldReservation    FieldReservation[]    @relation("FieldReservationsToFacilityFields")
+  facility            Facility              @relation("FacilityToFields", fields: [facilityFieldId], references: [facilityId])
+  workingHours        WorkingHours[]        @relation("FieldToWorkingHours")
+  hourlyPricing       HourlyPricing[]       @relation("FieldToPricing")
+}
+
+model WorkingHours {
+  id         String  @id @default(uuid())
+  facilityId String
+  fieldId    String?
+  date       DateTime?
+  dayOfWeek  Int?
+  startTime  String
+  endTime    String
+  isClosed   Boolean @default(false)
+
+  facility Facility        @relation("FacilityToWorkingHours", fields: [facilityId], references: [facilityId], onDelete: Cascade)
+  field    FacilityFields? @relation("FieldToWorkingHours", fields: [fieldId], references: [fieldId], onDelete: Cascade)
+
+  @@unique([facilityId, dayOfWeek, fieldId])
+}
+
+model HourlyPricing {
+  id         String  @id @default(uuid())
+  facilityId String
+  fieldId    String?
+  date       DateTime?
+  dayOfWeek  Int
+  startTime  String
+  endTime    String
+  price      Float
+
+  facility Facility        @relation("FacilityToPricing", fields: [facilityId], references: [facilityId], onDelete: Cascade)
+  field    FacilityFields? @relation("FieldToPricing", fields: [fieldId], references: [fieldId], onDelete: Cascade)
+
+  @@index([facilityId, fieldId])
 }
 
 model FieldReservation {

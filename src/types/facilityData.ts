@@ -1,8 +1,8 @@
-import { Facility, FacilityFields, FieldReservation, SpecialWorkingHours, WorkingHours } from "@prisma/client";
+import { Facility, FacilityFields, FieldReservation, HourlyPricing, WorkingHours } from "@prisma/client";
 
 export type FacilityWithFields = Facility & {
     workingHours: WorkingHours[]
-    specialWorkingHours: SpecialWorkingHours[],
+    hourlyPricing: HourlyPricing[],
     facilityFields: (FacilityFields & {
          fieldReservation: FieldReservation[];
     })[];
