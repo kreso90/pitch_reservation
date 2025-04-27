@@ -2,6 +2,7 @@
 import { createReservation, deleteReservation } from '@/app/actions/actions';
 import { useCalendar } from '@/hooks/useCalendar'
 import { FacilityWithFields } from '@/types/facilityData';
+import { getHourStreakPosition, getPriceForHour, getReservationInfo, getWorkingHoursForDay, isPrevDate, isSlotReserved } from '@/utils/calendarUtils';
 import { createDateFromStringAndNumber, formatDate, formatStringToDate, formatToISODateTime } from '@/utils/formatUtils';
 import React, { useActionState, useEffect } from 'react'
 import { TbCalendarMonth, TbArrowRight, TbArrowLeft } from "react-icons/tb";
@@ -16,7 +17,7 @@ type CalendarProps = {
 
 export default function Calendar({ facilityData, initialFieldId, refreshFacilityData, userId, userName }: CalendarProps) {
 
-    const { days, isSameDate, getWorkingHoursForDay, daysNavigation, selectedFieldId, setSelectedFieldId, getMaxHours, setFormMsg, formMsg, handleNextWeek, handleCancelButton, setIsCancelPopupOpen, isCancelPopupOpen, getReservationInfo, getHourStreakPosition, handlePrevWeek, isSlotReserved, isPopupOpen, reservationTime, reservationId, setIsPopupOpen, handleBoxClick, isPrevDate, getPriceForHour } = useCalendar();
+    const { days, daysNavigation, selectedFieldId, setSelectedFieldId, getMaxHours, setFormMsg, formMsg, handleNextWeek, handleCancelButton, handlePrevWeek, isPopupOpen, reservationTime, reservationId, setIsPopupOpen, handleBoxClick } = useCalendar();
 
     useEffect(() => {
         setSelectedFieldId(initialFieldId ?? '')
@@ -26,8 +27,7 @@ export default function Calendar({ facilityData, initialFieldId, refreshFacility
         async (prevState: any, formData: FormData) => {
             const result = await createReservation(prevState, formData);
         
-            await refreshFacilityData();
-            setFormMsg(result ?? null); 
+            setFormMsg(result ?? ''); 
             return result;
         },
         null
@@ -37,7 +37,7 @@ export default function Calendar({ facilityData, initialFieldId, refreshFacility
         async (prevState: any, formData: FormData) => {
             const result = await deleteReservation(prevState, formData);
         
-            await refreshFacilityData();
+            setFormMsg(result ?? ''); 
             return result;
         },
         null
@@ -53,8 +53,7 @@ export default function Calendar({ facilityData, initialFieldId, refreshFacility
                     value={selectedFieldId}
                     onChange={(e) => {
                         setSelectedFieldId(e.target.value); 
-                        setIsPopupOpen(false); 
-                        setIsCancelPopupOpen(false);
+                        setIsPopupOpen(''); 
                     }}
                 >
         
@@ -163,18 +162,18 @@ export default function Calendar({ facilityData, initialFieldId, refreshFacility
                 })}
 
             
-            {isPopupOpen && (
+            {isPopupOpen == "reservation" && (
                 <div className="popup">
                     <div className="popup__content">
-                        {formMsg == null ? 
+                        {formMsg == '' ? 
                         <form action={formAction}>
-                            <p>Do you want to reserve {reservationTime?.reservationName} on {formatDate(reservationTime?.reservationStartTime)}?</p>                    
+                            <p className="m-bottom-20">Do you want to reserve {reservationTime?.reservationName} on {formatDate(reservationTime?.reservationStartTime)}?</p>                    
                             <input type="hidden" name='field_reservation_id' value={reservationTime?.fieldReservationId}/>
                             <input type="hidden" name='user_id' value={reservationTime?.userId}/>
                             <input type="hidden" name="reservation_name" value={userName ?? 'Unknown'} />
                             <input type="hidden" name="reservation_start" value={formatToISODateTime(formatDate(reservationTime?.reservationStartTime))} />
-                            <p>Select number of hours {formatDate(reservationTime?.reservationStartTime)}</p>
-                            <select name="reservation_end">
+                            <p className="m-bottom-5">Select number of hours</p>
+                            <select name="reservation_end" className="m-bottom-30 input">
                                 {Array.from({ length: getMaxHours }, (_, i) => {
                                     const hours = i + 1;
                                     return (
@@ -184,13 +183,15 @@ export default function Calendar({ facilityData, initialFieldId, refreshFacility
                                     );
                                 })}
                             </select>
-                            <button onClick={() => setIsPopupOpen(false)}>Cancel</button>
-                            <button type='submit' disabled={isPending}>Confirm</button>
+                            <div className="two-col-grid">
+                                <button type="button" onClick={() => setIsPopupOpen('')}>Cancel</button>
+                                <button type='submit' disabled={isPending}>Confirm</button>
+                            </div>
                         </form>
                         :
                         <div>
                             <p>{formMsg}</p>
-                            <button onClick={() => { setIsPopupOpen(false); setFormMsg(null); }}>Ok</button>
+                            <button onClick={() => {refreshFacilityData()}}>Ok</button>
                         </div> 
                        }
                      
@@ -198,15 +199,24 @@ export default function Calendar({ facilityData, initialFieldId, refreshFacility
                 </div>
             )}
 
-            {isCancelPopupOpen && (
+            {isPopupOpen == "cancel" && (
                 <div className="popup">
                     <div className="popup__content">
-                        <p>Do you realy want to cancle reservation?</p>                    
-                        <form action={formDeleteAction} onSubmit={() => setIsCancelPopupOpen(false)}>
+                    {formMsg == '' ?   
+                        <form action={formDeleteAction}>
+                            <p className="m-bottom-20">Do you realy want to cancle reservation?</p>   
                             <input type="hidden" name="reservation_id" value={reservationId} />
-                            <button type='submit' disabled={isDeletePending}>Confirm</button>
-                        </form>
-                        <button onClick={() => setIsCancelPopupOpen(false)}>Cancel</button>
+
+                            <div className="two-col-grid">
+                                <button type="button" onClick={() => setIsPopupOpen('')}>Cancel</button>
+                                <button type='submit' disabled={isPending}>Confirm</button>
+                            </div>
+                        </form>         
+                        : 
+                        <div>
+                            <p className="m-bottom-20">{formMsg}</p>
+                            <button onClick={() => {refreshFacilityData()}}>Ok</button>
+                        </div>}
                     </div>
                 </div>
             )}

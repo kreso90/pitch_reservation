@@ -13,7 +13,7 @@ type FacilitySettingsProps = {
 
 export default function FacilitySettings({facilityData, refreshFacilityData}: FacilitySettingsProps) {
 
-    const { handleEditWorkingHours, handleCreateWorkingHours, workingHours, isPopupOpen, setIsPopupOpen, setStartTime, startTime, endTime, setEndTime, formMsg, setFormMsg, isCreatePopupOpen, setIsCreatePopupOpen, selectedField, setSelectedField, date, setDate, ruleType, handleRadioChange, workingHoursId, handleDeleteButton, isDeletePopupOpen, setIsDeletePopupOpen } = useFacilitySettings();
+    const { handleEditWorkingHours, handleCreateWorkingHours, workingHours, isPopupOpen, setIsPopupOpen, setStartTime, startTime, endTime, setEndTime, formMsg, setFormMsg, selectedField, setSelectedField, date, setDate, ruleType, handleRadioChange, workingHoursId, handleDeleteButton } = useFacilitySettings();
 
     const [state, formEditAction, isPending] = useActionState(
         async (prevState: any, formData: FormData) => {
@@ -162,7 +162,7 @@ export default function FacilitySettings({facilityData, refreshFacilityData}: Fa
         </div>
         ))}
 
-        {isPopupOpen && (
+        {isPopupOpen == "update" && (
         <div className="popup">
             <div className="popup__content">
                
@@ -214,7 +214,7 @@ export default function FacilitySettings({facilityData, refreshFacilityData}: Fa
                         </div>
                     </div>
                     <div className="two-col-grid">
-                        <button type="button" onClick={() => setIsPopupOpen(false)}>Cancel</button>
+                        <button type="button" onClick={() => setIsPopupOpen("")}>Cancel</button>
                         <button type='submit' disabled={isPending}>Confirm</button>
                     </div>
                   
@@ -230,7 +230,7 @@ export default function FacilitySettings({facilityData, refreshFacilityData}: Fa
         </div>
     )}
 
-    {isCreatePopupOpen && (
+    {isPopupOpen == "create" && (
         <div className="popup">
             <div className="popup__content">
                
@@ -341,7 +341,7 @@ export default function FacilitySettings({facilityData, refreshFacilityData}: Fa
                     </div>
 
                     <div className="two-col-grid">
-                        <button type="button" onClick={() => setIsCreatePopupOpen(false)}>Cancel</button>
+                        <button type="button" onClick={() => setIsPopupOpen("")}>Cancel</button>
                         <button type='submit' disabled={isPending}>Confirm</button>
                     </div>
                   
@@ -360,7 +360,7 @@ export default function FacilitySettings({facilityData, refreshFacilityData}: Fa
             <button onClick={() => handleCreateWorkingHours()}>Add working hours</button>
         </div>
 
-        {isDeletePopupOpen && (
+        {isPopupOpen == "delete" && (
             <div className="popup">
                 <div className="popup__content">
                 {formMsg == '' ?
@@ -369,7 +369,7 @@ export default function FacilitySettings({facilityData, refreshFacilityData}: Fa
                         <p className="m-bottom-20">Do you realy want to delete this working hours?</p>
                         <input type="hidden" name="id" value={workingHoursId} />
                         <div className="two-col-grid">
-                            <button type="button" onClick={() => setIsDeletePopupOpen(false)}>Cancel</button>
+                            <button type="button" onClick={() => setIsPopupOpen("")}>Cancel</button>
                             <button type='submit' disabled={isPending}>Confirm</button>
                         </div>
                     </form>                
@@ -379,7 +379,8 @@ export default function FacilitySettings({facilityData, refreshFacilityData}: Fa
                         <button onClick={() => {refreshFacilityData()}}>Ok</button>
                     </div>}
                 </div>
-            </div>)}
+            </div>
+        )}
     </div>
   );
 }
