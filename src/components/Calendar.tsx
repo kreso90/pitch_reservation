@@ -92,22 +92,7 @@ export default function Calendar({ facilityData, initialFieldId, refreshFacility
                             index,
                             selectedFieldId
                         );
-
-                        const dayWorkingHours = facilityData.workingHours.find(
-                            (wh) =>
-                                wh.date &&
-                                isSameDate(new Date(wh.date),  new Date(createDateFromStringAndNumber(day, 0))) &&
-                                (wh.fieldId === selectedFieldId || wh.fieldId === null)
-                          ) ?? facilityData.workingHours.find(
-                            (wh) =>
-                                wh.dayOfWeek != null &&
-                                wh.dayOfWeek === index &&
-                                (wh.fieldId === selectedFieldId || wh.fieldId === null)
-                          );
-     
-                        const endHour = dayWorkingHours?.endTime ?? new Date(facilityData.workingHoursEnd ?? '23:00').getHours().toString();
-                       
-                
+                  
                         return (
                             <div key={index} className="calendar__column">
                             <p className="calendar__day">{formatStringToDate(day)}</p>
@@ -130,17 +115,16 @@ export default function Calendar({ facilityData, initialFieldId, refreshFacility
                                     className={`calendar__box ${isReserved || isPrevDates ? 'reserved' : ''} ${reservationInfo?.isReservedByUser ? `reserved-by-user` : ''} ${streakStatus ? `calendar__box--${streakStatus}` : ''}`}
                                     onClick={
                                     !isReserved && !isPrevDates
-                                        ? () =>{
+                                        ? () =>
                                             handleBoxClick(
-                                            userId ?? '',
-                                            field.fieldId,
-                                            field.fieldName,
-                                            createDateFromStringAndNumber(day, hour),
-                                            new Date(day),
-                                            createDateFromStringAndNumber(day, parseInt(endHour.split(':')[0])),
-                                            facilityData.facilityFields[fieldIndex].fieldReservation
+                                                userId ?? '',
+                                                field.fieldId,
+                                                field.fieldName,
+                                                createDateFromStringAndNumber(day, hour),
+                                                new Date(day),
+                                                createDateFromStringAndNumber(day, hours[hours.length - 1]),
+                                                facilityData.facilityFields[fieldIndex].fieldReservation
                                             ) 
-                                            console.log(endHour)}
                                         : () => {}
                                     }
                                 >
@@ -157,10 +141,9 @@ export default function Calendar({ facilityData, initialFieldId, refreshFacility
                                     </div>
 
                                     <div className="calendar__box__bottom place-space-between">
-                                    <span className="light-grey">
-                                        {reservationInfo?.isReservedByUser ? 'Reserved by you' : pricingEntry + '€'}
-                                        
-                                    </span>
+                                        <span className="light-grey">
+                                            {reservationInfo?.isReservedByUser ? 'Reserved by you' : pricingEntry + '€'}
+                                        </span>
                                     </div>
                                 </div>
                                 );

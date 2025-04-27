@@ -1,5 +1,6 @@
 "use client";
 import Calendar from "@/components/Calendar";
+import FacilitySettings from "@/components/FacilitySettings";
 import Loader from "@/components/Loader";
 import Nav from "@/components/Nav";
 import ReservationsList from "@/components/ReservationsList";
@@ -24,6 +25,11 @@ export default function Home() {
             <div className="main__col">
             {loading ? (
                 <Loader />
+            ) : activeView === 'facility' ? (
+                <FacilitySettings 
+                refreshFacilityData={refreshFacilityData}
+                facilityData={facilityData} 
+                />
             ) : activeView === 'calendar' ? (
                 <Calendar 
                 facilityData={facilityData} 

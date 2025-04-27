@@ -1,10 +1,10 @@
 import useAuth from "@/hooks/useAuth";
 import React from "react";
-import { TbSoccerField, TbCalendarMonth, TbClockHour4, TbLogout } from "react-icons/tb";
+import { TbHomeCog, TbCalendarMonth, TbClockHour4, TbLogout } from "react-icons/tb";
 
 type NavProps = {
-    activeView: 'calendar' | 'reservations';
-    setActiveView: (view: 'calendar' | 'reservations') => void;
+    activeView: 'facility' | 'calendar' | 'reservations';
+    setActiveView: (view: 'facility' | 'calendar' | 'reservations') => void;
 };
 
 export default function Nav({ activeView, setActiveView }: NavProps) {
@@ -13,22 +13,26 @@ export default function Nav({ activeView, setActiveView }: NavProps) {
     <div>
         <nav>
             <ul>
+                <li onClick={() => setActiveView('facility')}>
+                    <TbHomeCog  size={20} />
+                    <span>Facility settings</span>
+                </li>
+
                 <li onClick={() => setActiveView('calendar')} >
                     <TbCalendarMonth size={20} />
                     <span>Calendar</span>
                 </li>
-                <li>
-                    <TbSoccerField size={20} />
-                    <span>Fields</span>
-                </li>
+             
                 <li onClick={() => setActiveView('reservations')} >
                     <TbClockHour4 size={20} />
                     <span>Reservations</span>
                 </li>
+
                 <li>
                     <TbLogout size={20} />
                     <span onClick={handleSingOut}>Logout</span>
                 </li>
+
             </ul>
         </nav>
     </div>

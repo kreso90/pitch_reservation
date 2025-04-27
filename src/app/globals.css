@@ -89,6 +89,8 @@ small{
 
 .c-pointer{cursor: pointer;}
 
+.white-space-no{white-space: nowrap;}
+
 /* Navigation */
 
 nav ul li{
@@ -108,6 +110,26 @@ nav ul li svg{
   margin-right: 5px;
 }
 
+.two-col-grid{
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+@media(min-width: 768px){
+  .two-md-col-grid{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  
+  .three-md-col-grid{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+}
+
 .search-nav{
   display: grid;
   grid-template-columns: repeat(1, 1fr);
@@ -116,7 +138,7 @@ nav ul li svg{
 
 @media(min-width: 380px){
   .search-nav{
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   } 
 }
 
@@ -216,16 +238,15 @@ input[type=radio] {
 
 input[type=radio]::before {
   content: "";
-  width: 12px;
-  height: 12px;
+  min-width: 12px;
+  min-height: 12px;
   border-radius: 50%;
   transform: scale(0);
   transition: 120ms transform ease-in-out;
-  background-color: var(--lightGrey);
+  background: var(--lightGrey);
 }
 
 input[type=radio]:checked {
-  border: 2px solid var(--lightGrey);
   transition: 120ms transform ease-in-out;
 }
 
@@ -321,6 +342,11 @@ button{
   font-size: 18px;
   font-family: var(--font-montserrat), sans-serif;
   border-radius: 5px;
+}
+
+button.small{
+  padding: 5px;
+  font-size: 14px;
 }
 
 button:disabled{
@@ -904,4 +930,5 @@ button:hover{
   height: fit-content;
   border: 15px;
   border: 2px solid var(--lightGrey);
+  z-index: 1000;
 }

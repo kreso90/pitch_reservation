@@ -5,7 +5,7 @@ const useFacilityData = () => {
     const [ loading, setLoading ] = useState(false);
     const [ facilityData, setFacilityData ] = useState<FacilityWithFields | null>(null);
     const [ selectedFieldId, setSelectedFieldId ] = useState<string>('');
-    const [ activeView, setActiveView ] = useState<'calendar' | 'reservations'>('calendar');
+    const [ activeView, setActiveView ] = useState<'facility' | 'calendar' | 'reservations'>('calendar');
 
     const getFacilityData = async () => {
         setLoading(true)

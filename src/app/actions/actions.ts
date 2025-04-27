@@ -1,7 +1,9 @@
 // app/actions/actions.ts
 "use server";
 import { prisma } from '@/lib/prisma';
+import { createDateFromStringAndNumber, formatToISODateTime } from '@/utils/formatUtils';
 import bcrypt from 'bcryptjs';
+import { format, parse } from 'date-fns';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
@@ -106,5 +108,84 @@ export async function deleteReservation(prevState: any, formData: FormData) {
     if (deleteReservation) {
         return "success";
     }
+}
 
+
+export async function editWrokingHours(prevState: any, formData: FormData) {
+    const id = formData.get('id')?.toString();
+    const startTime = formData.get('start_time')?.toString();
+    const endTime = formData.get('end_time')?.toString();
+    const isClosed = formData.get('is_closed') === '1';
+
+    if (!id) {
+        return "Missing required reservation fields.";
+    }
+
+    const updatedWorkingHours = await prisma.workingHours.update({
+        where: {
+          id: id, 
+        },
+        data: {
+          startTime: startTime,
+          endTime: endTime,
+          isClosed: isClosed ?? false,
+        },
+    });
+      
+
+    if (updatedWorkingHours) {
+        return "Working hours has been updated";
+    }
+}
+
+export async function createHoursAction(prevState: any, formData: FormData) {
+    const facilityId = formData.get('facility_id')?.toString();
+    const field_id = formData.get('field_id')?.toString();
+    const weekDay = formData.get('week_day')?.toString();
+    const date = formData.get('date')?.toString();
+    const startTime = formData.get('start_time')?.toString();
+    const endTime = formData.get('end_time')?.toString();
+    const isClosed = formData.get('is_closed') === '1';
+
+    const parsedDate = date ? parse(date, 'MM/dd/yyyy', new Date()) : null;
+    const isoString = parsedDate != null ? parsedDate.toISOString() : null; 
+
+    if (!facilityId) {
+        return "Something went wrong.";
+    }
+
+    const createWorkingHours = await prisma.workingHours.create({
+        data: {
+            facilityId: facilityId,
+            fieldId: field_id && field_id !== '' ? field_id : null,
+            startTime: startTime ?? '',
+            endTime: endTime ?? '',
+            isClosed: isClosed ?? false,
+            date: isoString ?? null,
+            dayOfWeek: weekDay !== undefined ? parseInt(weekDay) : null,
+        },
+    });
+      
+
+    if (createWorkingHours) {
+        return "Working hours have been created.";
+    }
+}
+
+export async function deleteWorkingHours(prevState: any, formData: FormData) {
+    const id = formData.get('id')?.toString();
+
+    if (!id) {
+        return "Missing required id.";
+    }
+
+    const deleteWorkingHours = await prisma.workingHours.delete({
+        where: {
+            id: id
+        },
+    });
+
+    if (deleteWorkingHours) {
+        return "Working hours has been deleted";
+    }
 }

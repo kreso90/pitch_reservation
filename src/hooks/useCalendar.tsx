@@ -88,7 +88,7 @@ export const useCalendar = () => {
       return dateToCheck.getTime() < currentTime;
     };
     
-    
+
     const getReservationInfo = (
         reservations: FieldReservation[],
         dateToCheck: Date,
@@ -169,10 +169,10 @@ export const useCalendar = () => {
     
 
     function getMaxAvailableHours(
-        reservations: FieldReservation[],
-        startTime: Date,
-        workingHoursEnd: Date
-      ): number {
+      reservations: FieldReservation[],
+      startTime: Date,
+      workingHoursEnd: Date
+    ): number {
         let count = 1;
         let current = new Date(startTime);
 
@@ -226,39 +226,46 @@ export const useCalendar = () => {
       const startHour = new Date(workingHoursStart ?? '').getHours();
       const endHour = new Date(workingHoursEnd ?? '').getHours();
     
-      const hasSpecificDate = workingHours?.some(wh =>
-        wh.date &&
-        isSameDate(wh.date, new Date(day)) &&
-        (wh.fieldId === selectedFieldId || wh.fieldId === null)
-      );
-    
-      if (hasSpecificDate) {
-        const workingHourEntry = workingHours.find(wh =>
+      const specificDateEntry =
+        workingHours.find(wh =>
           wh.date &&
           isSameDate(new Date(wh.date), new Date(day)) &&
-          (wh.fieldId === selectedFieldId || wh.fieldId === null)
-        );
+          wh.fieldId === selectedFieldId
+        ) ??
+        
+        workingHours.find(wh =>
+          wh.date &&
+          isSameDate(new Date(wh.date), new Date(day)) &&
+          wh.fieldId === null
+        );       
+      
+      if (specificDateEntry) {
+        return specificDateEntry.isClosed
+          ? []
+          : getDayWorkingHours(specificDateEntry.startTime, specificDateEntry.endTime);
+      }
     
-        if (workingHourEntry) {
-          return workingHourEntry.isClosed
-            ? []
-            : getDayWorkingHours(workingHourEntry.startTime, workingHourEntry.endTime);
-        }
-      } else {
-        const workingHourEntry = workingHours.find(wh =>
+      const dayOfWeekEntry =
+        
+        workingHours.find(wh =>
           wh.dayOfWeek === index &&
-          (wh.fieldId === selectedFieldId || wh.fieldId === null)
+          wh.fieldId === selectedFieldId
+        ) ??
+  
+        workingHours.find(wh =>
+          wh.dayOfWeek === index &&
+          wh.fieldId === null
         );
-    
-        if (workingHourEntry) {
-          return workingHourEntry.isClosed
-            ? []
-            : getDayWorkingHours(workingHourEntry.startTime, workingHourEntry.endTime);
-        }
+       
+      if (dayOfWeekEntry) {
+        return dayOfWeekEntry.isClosed
+          ? []
+          : getDayWorkingHours(dayOfWeekEntry.startTime, dayOfWeekEntry.endTime);
       }
     
       return Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
     }
+    
 
     useEffect(() => {
         generateWeek();

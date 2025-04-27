@@ -1,6 +1,9 @@
 import { addHours,format,formatISO, isValid, parse } from "date-fns";
 import { enUS } from "date-fns/locale";
 
+const shortDays = ['Mon.', 'Tue.', 'Wed.', 'Thu.', 'Fri.', 'Sat.', 'Sun.'];
+const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
 export const formatDate = (date: Date | undefined) => {
   if (!date) return 'No date available';
   return date.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false });
@@ -11,12 +14,27 @@ export const formatTime = (date: Date | undefined) => {
   return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 };
 
+export const formatDay = (dayIndex: number | undefined, dayShort?: boolean | false) => {
+  if (dayIndex === undefined || dayIndex < 0 || dayIndex > 6) return 'No day available';
+  return dayShort ? days[dayIndex] : shortDays[dayIndex];
+};
 
 export const formatStringToDate = (dateStr: string): string => {
   const parsed = parse(dateStr, 'EEE do MMMM yyyy', new Date(), { locale: enUS });
   if (!isValid(parsed)) return 'No time available';
 
   return format(parsed, 'EEE do', { locale: enUS });
+};
+
+
+export const parseTimeStringToDate = (timeStr: string): Date => {
+  const [hours, minutes] = timeStr.split(":").map(Number);
+  const date = new Date();
+  date.setHours(hours);
+  date.setMinutes(minutes);
+  date.setSeconds(0);
+  date.setMilliseconds(0);
+  return date;
 };
 
 
@@ -60,3 +78,13 @@ export const combineDateAndTime = (dateOnly: Date, dateWithTime: Date): Date => 
 
   return new Date(year, month, day, hour, minute);
 }
+
+export const allDaysOfWeek = [
+  { value: 0, label: "Monday" },
+  { value: 1, label: "Tuesday" },
+  { value: 2, label: "Wednesday" },
+  { value: 3, label: "Thursday" },
+  { value: 4, label: "Friday" },
+  { value: 5, label: "Saturday" },
+  { value: 6, label: "Sunday" },
+];
