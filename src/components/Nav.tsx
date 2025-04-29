@@ -1,21 +1,32 @@
 import useAuth from "@/hooks/useAuth";
-import React from "react";
-import { TbHomeCog, TbCalendarMonth, TbClockHour4, TbLogout } from "react-icons/tb";
+import React, { useState } from "react";
+import { TbHomeCog, TbCalendarMonth, TbClockHour4, TbLogout, TbHome } from "react-icons/tb";
 
 type NavProps = {
     activeView: 'facility' | 'calendar' | 'reservations';
     setActiveView: (view: 'facility' | 'calendar' | 'reservations') => void;
+    isAdmin: boolean
 };
 
-export default function Nav({ activeView, setActiveView }: NavProps) {
+export default function Nav({ activeView, setActiveView, isAdmin }: NavProps) {
   const { handleSingOut } = useAuth();
+
+  const [ toggleNav, setToggleNav ] = useState(false);
+
   return (
-    <div>
+    <>
+    <span className={`nav__hamburger ${toggleNav ? "open" : "" }`} onClick={() => setToggleNav(prev => !prev)}>
+        <span></span>
+        <span></span>
+        <span></span>
+    </span>
+    <div className={`nav ${toggleNav ? "open" : "" }`}>
+
         <nav>
             <ul>
                 <li onClick={() => setActiveView('facility')}>
-                    <TbHomeCog  size={20} />
-                    <span>Facility settings</span>
+                    {isAdmin ? <TbHomeCog  size={20} /> : <TbHome size={20} />}
+                    <span>Facility {isAdmin ? "settings" : "info"}</span>
                 </li>
 
                 <li onClick={() => setActiveView('calendar')} >
@@ -36,5 +47,6 @@ export default function Nav({ activeView, setActiveView }: NavProps) {
             </ul>
         </nav>
     </div>
+    </> 
   );
 }

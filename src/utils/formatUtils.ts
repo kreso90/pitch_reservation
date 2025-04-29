@@ -79,6 +79,10 @@ export const combineDateAndTime = (dateOnly: Date, dateWithTime: Date): Date => 
   return new Date(year, month, day, hour, minute);
 }
 
+export const formatPrice = (price: number): string => {
+  return `${price.toFixed(2)} €`;
+};
+
 export const allDaysOfWeek = [
   { value: 0, label: "Monday" },
   { value: 1, label: "Tuesday" },

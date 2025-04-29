@@ -189,3 +189,190 @@ export async function deleteWorkingHours(prevState: any, formData: FormData) {
         return "Working hours has been deleted";
     }
 }
+
+export async function editHourlyPrices(prevState: any, formData: FormData) {
+    const id = formData.get('id')?.toString();
+    const startTime = formData.get('start_time')?.toString();
+    const endTime = formData.get('end_time')?.toString();
+    const price = formData.get('price')?.toString();
+
+    if (!id) {
+        return "Missing required reservation fields.";
+    }
+
+    const updatedHourlyPrice = await prisma.hourlyPricing.update({
+        where: {
+          id: id, 
+        },
+        data: {
+          startTime: startTime,
+          endTime: endTime,
+          price: parseFloat(price ?? '0')
+        },
+    });
+      
+
+    if (updatedHourlyPrice) {
+        return "Hourly price has been updated";
+    }
+}
+
+export async function createHourlyPrices(prevState: any, formData: FormData) {
+    const facilityId = formData.get('facility_id')?.toString();
+    const field_id = formData.get('field_id')?.toString();
+    const weekDay = formData.get('week_day')?.toString();
+    const date = formData.get('date')?.toString();
+    const startTime = formData.get('start_time')?.toString();
+    const endTime = formData.get('end_time')?.toString();
+    const price = formData.get('price')?.toString();
+
+    const parsedDate = date ? parse(date, 'MM/dd/yyyy', new Date()) : null;
+    const isoString = parsedDate != null ? parsedDate.toISOString() : null; 
+
+    if (!facilityId) {
+        return "Something went wrong.";
+    }
+
+    const createHourlyPrice = await prisma.hourlyPricing.create({
+        data: {
+            facilityId: facilityId,
+            fieldId: field_id && field_id !== '' ? field_id : null,
+            startTime: startTime ?? '',
+            endTime: endTime ?? '',
+            date: isoString ?? null,
+            dayOfWeek: weekDay !== undefined ? parseInt(weekDay) : null,
+            price: parseFloat(price ?? '0')
+        },
+    });
+      
+
+    if (createHourlyPrice) {
+        return "Hourly price have been created.";
+    }
+}
+
+export async function deleteHourlyPrices(prevState: any, formData: FormData) {
+    const id = formData.get('id')?.toString();
+
+    if (!id) {
+        return "Missing required id.";
+    }
+
+    const deleteHourlyPrice = await prisma.hourlyPricing.delete({
+        where: {
+            id: id
+        },
+    });
+
+    if (deleteHourlyPrice) {
+        return "Hourly price has been deleted";
+    }
+}
+
+export async function editField(prevState: any, formData: FormData) {
+    const id = formData.get('id')?.toString();
+    const FieldName = formData.get('field_name')?.toString();
+    const FieldType = formData.get('field_type')?.toString();
+    const FieldPrice = formData.get('field_price')?.toString();
+
+    if (!id) {
+        return "Missing required reservation fields.";
+    }
+
+    const updatedField = await prisma.facilityFields.update({
+        where: {
+          fieldId: id, 
+        },
+        data: {
+            fieldName: FieldName ?? '',
+            fieldType: FieldType ?? '',
+            fieldPrice: parseFloat(FieldPrice ?? '0'),
+        },
+    });
+      
+
+    if (updatedField) {
+        return "Field has been updated";
+    }
+}
+
+export async function createField(prevState: any, formData: FormData) {
+    const facilityId = formData.get('facility_id')?.toString();
+    const FieldName = formData.get('field_name')?.toString();
+    const FieldType = formData.get('field_type')?.toString();
+    const FieldPrice = formData.get('field_price')?.toString();
+
+    if (!facilityId) {
+        return "Something went wrong.";
+    }
+
+    const createField = await prisma.facilityFields.create({
+        data: {
+            facilityFieldId: facilityId,
+            fieldName: FieldName ?? '',
+            fieldType: FieldType ?? '',
+            fieldPrice: parseFloat(FieldPrice ?? '0'),
+        },
+    });
+      
+
+    if (createField) {
+        return "New field have been created.";
+    }
+}
+
+export async function deleteField(prevState: any, formData: FormData) {
+    const id = formData.get('id')?.toString();
+
+    if (!id) {
+        return "Missing required id.";
+    }
+
+    const deleteField = await prisma.facilityFields.delete({
+        where: {
+            fieldId: id
+        },
+    });
+
+    if (deleteField) {
+        return "Field has been deleted";
+    }
+}
+
+export async function editFacility(prevState: any, formData: FormData) {
+    const id = formData.get('id')?.toString();
+    const name = formData.get('name')?.toString();
+    const desc = formData.get('desc')?.toString();
+    const address = formData.get('address')?.toString();
+    const email = formData.get('email')?.toString();
+    const telephone = formData.get('telephone')?.toString();
+    const startTime = formData.get('start_time')?.toString();
+    const endTime = formData.get('end_time')?.toString();
+    const fieldTypes = formData.getAll('field_types') as string[];
+
+
+    if (!id) {
+        return "Missing required reservation fields.";
+    }
+
+    const updatedField = await prisma.facility.update({
+        where: {
+          facilityId: id, 
+        },
+        data: {
+           facilityName: name,
+           facilityDesc: desc,
+           facilityAddress: address,
+           facilityEmail: email,
+           facilityTelephone: telephone,
+           workingHoursStart: startTime,
+           workingHoursEnd: endTime,
+           facilityFieldTypes: fieldTypes
+        },
+    });
+      
+
+    if (updatedField) {
+        return "Facility has been updated";
+    }
+}

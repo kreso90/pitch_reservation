@@ -92,26 +92,34 @@ const authOptions: NextAuthOptions = {
       return true;
     },
     session: ({ session, token }) => {
-      console.log("Session Callback", { session, token });
+    
       return {
         ...session,
         user: {
           ...session.user,
           id: token.id,
           randomKey: token.randomKey,
+          reservations: token.reservations || []
         },
       };
     },
-    jwt: ({ token, user }) => {
-      console.log("JWT Callback", { token, user });
-      if (user) {
-        const u = user as unknown as any;
+    jwt: async ({ token, user }) => {
+      const userId = user?.id ?? token.id;
+    
+      if (userId) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: userId },
+          include: { fieldReservation: true },
+        });
+        
         return {
           ...token,
-          id: u.id,
-          randomKey: u.randomKey,
+          id: userId,
+          randomKey: (user as any)?.randomKey ?? token.randomKey,
+          reservations: dbUser?.fieldReservation ?? [],
         };
       }
+    
       return token;
     },
   },

@@ -1,4 +1,5 @@
 // types/next-auth.d.ts
+import { FieldReservation } from "@prisma/client";
 import NextAuth from "next-auth";
 
 declare module "next-auth" {
@@ -8,6 +9,13 @@ declare module "next-auth" {
       name?: string | null;
       email?: string | null;
       image?: string | null;
+      reservations: FieldReservation[];
     };
+  }
+
+  interface JWT {
+    id: string;
+    reservations?: FieldReservation[];
+    randomKey?: string;
   }
 }

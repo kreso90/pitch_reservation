@@ -79,36 +79,43 @@ model Authenticator {
 }
 
 model Facility {
-  facilityId          String                @id @default(uuid())
-  facilityAdminId     String                @unique
-  facilityAdmin       String
-  workingHoursStart   DateTime
-  workingHoursEnd     DateTime
-  facilityFields      FacilityFields[]      @relation("FacilityToFields")
-  workingHours        WorkingHours[]        @relation("FacilityToWorkingHours")
-  hourlyPricing       HourlyPricing[]       @relation("FacilityToPricing")
+  facilityId         String           @id @default(uuid())
+  facilityName       String?
+  facilityDesc       String?
+  facilityAddress    String?
+  facilityEmail      String?
+  facilityTelephone  String?
+  facilityFieldTypes String[]
+  facilityAdminId    String           @unique
+  facilityAdmin      String
+  workingHoursStart  String
+  workingHoursEnd    String
+  facilityFields     FacilityFields[] @relation("FacilityToFields")
+  workingHours       WorkingHours[]   @relation("FacilityToWorkingHours")
+  hourlyPricing      HourlyPricing[]  @relation("FacilityToPricing")
 }
 
 model FacilityFields {
-  fieldId             String                @id @default(uuid())
-  facilityFieldId     String
-  fieldName           String
-  fieldType           String
-  fieldReservation    FieldReservation[]    @relation("FieldReservationsToFacilityFields")
-  facility            Facility              @relation("FacilityToFields", fields: [facilityFieldId], references: [facilityId])
-  workingHours        WorkingHours[]        @relation("FieldToWorkingHours")
-  hourlyPricing       HourlyPricing[]       @relation("FieldToPricing")
+  fieldId          String             @id @default(uuid())
+  facilityFieldId  String
+  fieldName        String
+  fieldType        String
+  fieldPrice       Float?
+  fieldReservation FieldReservation[] @relation("FieldReservationsToFacilityFields")
+  facility         Facility           @relation("FacilityToFields", fields: [facilityFieldId], references: [facilityId])
+  workingHours     WorkingHours[]     @relation("FieldToWorkingHours")
+  hourlyPricing    HourlyPricing[]    @relation("FieldToPricing")
 }
 
 model WorkingHours {
-  id         String  @id @default(uuid())
+  id         String    @id @default(uuid())
   facilityId String
   fieldId    String?
   date       DateTime?
   dayOfWeek  Int?
   startTime  String
   endTime    String
-  isClosed   Boolean @default(false)
+  isClosed   Boolean   @default(false)
 
   facility Facility        @relation("FacilityToWorkingHours", fields: [facilityId], references: [facilityId], onDelete: Cascade)
   field    FacilityFields? @relation("FieldToWorkingHours", fields: [fieldId], references: [fieldId], onDelete: Cascade)
@@ -117,11 +124,11 @@ model WorkingHours {
 }
 
 model HourlyPricing {
-  id         String  @id @default(uuid())
+  id         String    @id @default(uuid())
   facilityId String
   fieldId    String?
   date       DateTime?
-  dayOfWeek  Int
+  dayOfWeek  Int?
   startTime  String
   endTime    String
   price      Float

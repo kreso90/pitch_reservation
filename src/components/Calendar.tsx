@@ -76,7 +76,7 @@ export default function Calendar({ facilityData, initialFieldId, refreshFacility
             </div>
        
            
-            {facilityData?.facilityFields
+            {facilityData?.facilityFields != null && facilityData?.facilityFields
                 .filter((field) => field.fieldId == selectedFieldId)
                 .map((field) => {
                     return (
@@ -106,7 +106,7 @@ export default function Calendar({ facilityData, initialFieldId, refreshFacility
                                 const streakStatus = getHourStreakPosition(reservations, slotDate);
                                 const reservationInfo = getReservationInfo(reservations, slotDate, userId ?? '');
                                 const isPrevDates = isPrevDate(slotDate);
-                                const pricingEntry = getPriceForHour(facilityData.hourlyPricing, index, hour, selectedFieldId)
+                                const pricingEntry = getPriceForHour(facilityData.facilityFields, facilityData.hourlyPricing, index, new Date(createDateFromStringAndNumber(day, 0)), hour, selectedFieldId)
 
                                 return (
                                 <div
@@ -163,60 +163,64 @@ export default function Calendar({ facilityData, initialFieldId, refreshFacility
 
             
             {isPopupOpen == "reservation" && (
-                <div className="popup">
-                    <div className="popup__content">
-                        {formMsg == '' ? 
-                        <form action={formAction}>
-                            <p className="m-bottom-20">Do you want to reserve {reservationTime?.reservationName} on {formatDate(reservationTime?.reservationStartTime)}?</p>                    
-                            <input type="hidden" name='field_reservation_id' value={reservationTime?.fieldReservationId}/>
-                            <input type="hidden" name='user_id' value={reservationTime?.userId}/>
-                            <input type="hidden" name="reservation_name" value={userName ?? 'Unknown'} />
-                            <input type="hidden" name="reservation_start" value={formatToISODateTime(formatDate(reservationTime?.reservationStartTime))} />
-                            <p className="m-bottom-5">Select number of hours</p>
-                            <select name="reservation_end" className="m-bottom-30 input">
-                                {Array.from({ length: getMaxHours }, (_, i) => {
-                                    const hours = i + 1;
-                                    return (
-                                    <option key={hours} value={formatToISODateTime(formatDate(reservationTime?.reservationStartTime), hours)}>
-                                        {hours} hour{hours > 1 ? 's' : ''}
-                                    </option>
-                                    );
-                                })}
-                            </select>
-                            <div className="two-col-grid">
-                                <button type="button" onClick={() => setIsPopupOpen('')}>Cancel</button>
-                                <button type='submit' disabled={isPending}>Confirm</button>
-                            </div>
-                        </form>
-                        :
-                        <div>
-                            <p>{formMsg}</p>
-                            <button onClick={() => {refreshFacilityData()}}>Ok</button>
-                        </div> 
-                       }
-                     
+                <div className="popup__overlay">
+                    <div className="popup">
+                        <div className="popup__content">
+                            {formMsg == '' ? 
+                            <form action={formAction}>
+                                <p className="m-bottom-20">Do you want to reserve {reservationTime?.reservationName} on {formatDate(reservationTime?.reservationStartTime)}?</p>                    
+                                <input type="hidden" name='field_reservation_id' value={reservationTime?.fieldReservationId}/>
+                                <input type="hidden" name='user_id' value={reservationTime?.userId}/>
+                                <input type="hidden" name="reservation_name" value={userName ?? 'Unknown'} />
+                                <input type="hidden" name="reservation_start" value={formatToISODateTime(formatDate(reservationTime?.reservationStartTime))} />
+                                <p className="m-bottom-5">Select number of hours</p>
+                                <select name="reservation_end" className="m-bottom-30 input">
+                                    {Array.from({ length: getMaxHours }, (_, i) => {
+                                        const hours = i + 1;
+                                        return (
+                                        <option key={hours} value={formatToISODateTime(formatDate(reservationTime?.reservationStartTime), hours)}>
+                                            {hours} hour{hours > 1 ? 's' : ''}
+                                        </option>
+                                        );
+                                    })}
+                                </select>
+                                <div className="two-col-grid">
+                                    <button type="button" onClick={() => setIsPopupOpen('')}>Cancel</button>
+                                    <button type='submit' disabled={isPending}>Confirm</button>
+                                </div>
+                            </form>
+                            :
+                            <div>
+                                <p>{formMsg}</p>
+                                <button onClick={() => {refreshFacilityData()}}>Ok</button>
+                            </div> 
+                        }
+                        
+                        </div>
                     </div>
                 </div>
             )}
 
             {isPopupOpen == "cancel" && (
-                <div className="popup">
-                    <div className="popup__content">
-                    {formMsg == '' ?   
-                        <form action={formDeleteAction}>
-                            <p className="m-bottom-20">Do you realy want to cancle reservation?</p>   
-                            <input type="hidden" name="reservation_id" value={reservationId} />
+                <div className="popup__overlay">
+                    <div className="popup">
+                        <div className="popup__content">
+                        {formMsg == '' ?   
+                            <form action={formDeleteAction}>
+                                <p className="m-bottom-20">Do you realy want to cancle reservation?</p>   
+                                <input type="hidden" name="reservation_id" value={reservationId} />
 
-                            <div className="two-col-grid">
-                                <button type="button" onClick={() => setIsPopupOpen('')}>Cancel</button>
-                                <button type='submit' disabled={isPending}>Confirm</button>
-                            </div>
-                        </form>         
-                        : 
-                        <div>
-                            <p className="m-bottom-20">{formMsg}</p>
-                            <button onClick={() => {refreshFacilityData()}}>Ok</button>
-                        </div>}
+                                <div className="two-col-grid">
+                                    <button type="button" onClick={() => setIsPopupOpen('')}>Cancel</button>
+                                    <button type='submit' disabled={isPending}>Confirm</button>
+                                </div>
+                            </form>         
+                            : 
+                            <div>
+                                <p className="m-bottom-20">{formMsg}</p>
+                                <button onClick={() => {refreshFacilityData()}}>Ok</button>
+                            </div>}
+                        </div>
                     </div>
                 </div>
             )}

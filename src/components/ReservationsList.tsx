@@ -172,7 +172,7 @@ export default function ReservationsList({ facilityData, refreshFacilityData }: 
                         })
                     ) : (
                         <li className="no-events text-muted italic">
-                        No {searchOldNew} events
+                        No {searchOldNew} reservations
                         </li>
                     )}
                     </ul>
@@ -182,14 +182,19 @@ export default function ReservationsList({ facilityData, refreshFacilityData }: 
 
 
             {isCancelPopupOpen && (
-            <div className="popup">
-                <div className="popup__content">
-                    <p>Do you realy want to cancle reservation?</p>                    
-                    <form action={formDeleteAction} onSubmit={() => setIsCancelPopupOpen(false)}>
-                        <input type="hidden" name="reservation_id" value={reservationId} />
-                        <button type='submit' disabled={isDeletePending}>Confirm</button>
-                    </form>
-                    <button onClick={() => setIsCancelPopupOpen(false)}>Cancel</button>
+            <div className="popup__overlay">
+                <div className="popup">
+                    <div className="popup__content">
+                        <p className="m-bottom-20">Do you realy want to cancle reservation?</p>                    
+                        <form action={formDeleteAction} onSubmit={() => setIsCancelPopupOpen(false)}>
+                            <input type="hidden" name="reservation_id" value={reservationId} />
+                            <div className="two-col-grid">
+                                <button type="button" onClick={() => setIsCancelPopupOpen(false)}>Cancel</button>
+                                <button type='submit' disabled={isDeletePending}>Confirm</button>
+                            </div>
+                        </form>
+                
+                    </div>
                 </div>
             </div>
             )}
