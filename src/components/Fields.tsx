@@ -60,7 +60,7 @@ export const Fields = ({facilityData, refreshFacilityData, isAdmin}: FieldsProps
                             {formatPrice(field.fieldPrice ?? 0)}
                         </div>
                         {isAdmin && (
-                            <div className="col md-3 m-bottom-5 white-space-no text-right">
+                            <div className="col xs-3 m-bottom-5 white-space-no text-right">
                                 <span
                                     className="c-pointer"
                                     onClick={() => {

@@ -9,8 +9,8 @@ export default function LoginPage() {
   const { handleLogin, handleGoogleLogin, isSubmitting, authError } = useAuth();
   
   return (
-    <div className="flex h-100vh">
-        <div className="form__wrapper">
+    <div className="flex justify-center">
+        <div className="form__wrapper m-side-10">
 
         <form onSubmit={handleLogin}>
             <h1 className="form__title">Sign in</h1>

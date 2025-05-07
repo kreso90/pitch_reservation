@@ -12,8 +12,8 @@ export default function RegisterPage() {
   const { handleGoogleLogin, isSubmitting } = useAuth();
 
   return (
-    <div className="flex h-100vh">
-        <div className="form__wrapper">
+    <div className="flex justify-center">
+        <div className="form__wrapper m-side-10">
 
             <form action={formAction}>
 

@@ -30,7 +30,7 @@ body {
 }
 
 main{
-  padding: 50px 0 20px;
+  padding: 50px 0;
 }
 
 @media(min-width: 1024px){
@@ -110,7 +110,7 @@ strong{
   background: var(--darkGrey);
   padding-left: 10px;
   padding-right: 40px;
-  z-index: 10000;
+  z-index: 1000;
   height: 100%;
   transition: 0.25s;
 }
@@ -195,7 +195,7 @@ nav ul li svg{
   width: 25px;
   height: 20px;
   cursor: pointer;
-  z-index: 1000000;
+  z-index: 1001;
 }
 
 @media (min-width: 1024px) {
@@ -916,6 +916,8 @@ button:hover{
 
 .m-right-10{margin-right: 10px;}
 
+.m-side-10{margin-left: 10px; margin-right: 10px;}
+
 /* Padding */
 
 .p-0{padding: 0}
@@ -1092,7 +1094,7 @@ button:hover{
   background: rgba(22, 22, 22, .8);
   left: 0;
   top: 0;
-  z-index: 100;
+  z-index: 1003;
   display: flex;
   justify-content: center;
   align-items: center;
