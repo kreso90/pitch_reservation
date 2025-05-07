@@ -108,7 +108,7 @@ strong{
   top: 0;
   left: -100%;
   background: var(--darkGrey);
-  padding-left: 20px;
+  padding-left: 10px;
   padding-right: 40px;
   z-index: 10000;
   height: 100%;
@@ -120,7 +120,7 @@ strong{
 }
 
 nav ul{
-  margin-top: 40px;
+  margin-top: 60px;
 }
 
 @media(min-width: 1024px){
@@ -192,7 +192,7 @@ nav ul li svg{
   top: 10px;
   left: 10px;
   position: absolute;
-  width: 30px;
+  width: 25px;
   height: 20px;
   cursor: pointer;
   z-index: 1000000;
