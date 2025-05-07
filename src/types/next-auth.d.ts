@@ -10,6 +10,7 @@ declare module "next-auth" {
       email?: string | null;
       image?: string | null;
       reservations: FieldReservation[];
+      isAdmin: boolean;
     };
   }
 
@@ -17,5 +18,6 @@ declare module "next-auth" {
     id: string;
     reservations?: FieldReservation[];
     randomKey?: string;
+    isAdmin: boolean;
   }
 }

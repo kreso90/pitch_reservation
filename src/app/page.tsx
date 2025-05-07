@@ -13,7 +13,7 @@ import UserReservationList from "@/components/UserReservationList";
 
 export default function Home() {
     const { data: session } = useSession()
-    const { loading, facilityData, selectedFieldId, refreshFacilityData, activeView, setActiveView, isAdmin } = useFacilityData();
+    const { loading, facilityData, selectedFieldId, refreshFacilityData, activeView, setActiveView } = useFacilityData();
 
     return (
     
@@ -22,7 +22,7 @@ export default function Home() {
         <div className="row">
 
             <div className="main__col">
-                <Nav activeView={activeView} setActiveView={setActiveView} isAdmin={isAdmin}/>
+                <Nav activeView={activeView} setActiveView={setActiveView} isAdmin={session?.user.isAdmin ?? false}/>
             </div>
 
             <div className="main__col">
@@ -34,28 +34,28 @@ export default function Home() {
                         <Facility 
                         refreshFacilityData={refreshFacilityData}
                         facilityData={facilityData} 
-                        isAdmin={isAdmin}
+                        isAdmin={session?.user.isAdmin ?? false}
                         />
                     </div>
                     <div className="col md-6">
                         <Fields 
                         refreshFacilityData={refreshFacilityData}
                         facilityData={facilityData} 
-                        isAdmin={isAdmin}
+                        isAdmin={session?.user.isAdmin ?? false}
                         />
                     </div>
                     <div className="col md-6">
                         <HoursPrices 
                         refreshFacilityData={refreshFacilityData}
                         facilityData={facilityData} 
-                        isAdmin={isAdmin}
+                        isAdmin={session?.user.isAdmin ?? false}
                         />
                     </div>
                     <div className="col md-6">
                         <WorkingHours 
                         refreshFacilityData={refreshFacilityData}
                         facilityData={facilityData} 
-                        isAdmin={isAdmin}
+                        isAdmin={session?.user.isAdmin ?? false}
                         />
                     </div>
                 </div>
@@ -69,7 +69,7 @@ export default function Home() {
                 />
             ) : (
                 <div>
-                {isAdmin ?
+                {session?.user.isAdmin ?
                     <ReservationsList
                     facilityData={facilityData} 
                     initialFieldId={selectedFieldId}

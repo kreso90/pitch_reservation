@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 
 export async function GET() {
+    
     try {
         const facility = await prisma.facility.findFirst({
             include: {
