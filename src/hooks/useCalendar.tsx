@@ -14,7 +14,7 @@ export const useCalendar = () => {
     const [ getMaxHours, setMaxHours ] = useState<number>(1)
     const [ reservationId, setReservationId ] = useState<string>('')
     const [ formMsg, setFormMsg ] = useState<string>('')
-    const [ visibleDays, setVisibleDays ] = useState(7);
+    const [ visibleDays, setVisibleDays ] = useState(2);
 
     const [ daysNavigation, setDaysNavigation ] = useState<{
         firstWeekDay: string;
@@ -74,27 +74,23 @@ export const useCalendar = () => {
         setIsPopupOpen("cancel");
     }
 
-    useEffect(() => {
-        const updateVisibleDays = () => {
-            const width = window.innerWidth;
-            if (width < 640) {
-                setVisibleDays(2);
-            } else if (width < 1024) { 
-                setVisibleDays(4);
-            } else {
-                setVisibleDays(7);
-            }
-        };
-    
-        updateVisibleDays();
-        window.addEventListener('resize', updateVisibleDays);
-        return () => window.removeEventListener('resize', updateVisibleDays);
-    }, []);
+    const updateVisibleDays = () => {
+        const width = window.innerWidth;
+        if (width < 640) {
+            setVisibleDays(2);
+        } else if (width < 1024) { 
+            setVisibleDays(4);
+        } else {
+            setVisibleDays(7);
+        }
+    };
 
-
+ 
     useEffect(() => {
         generateWeek();
-    }, [weekOffset]);
+        updateVisibleDays();
+        window.addEventListener('resize', updateVisibleDays);
+    }, [visibleDays, weekOffset]);
 
     return {
         days,
