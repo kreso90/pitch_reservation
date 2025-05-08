@@ -108,12 +108,14 @@ export function getPriceForHour(
     const dayOfWeekPriceEntry = 
         hourlyPricing.find(p =>  
             p.dayOfWeek === dayOfWeek &&
+            p.date === null &&
             (p.fieldId === selectedFieldId) &&
             hour >= parseInt(p.startTime.split(':')[0]) &&
             hour <= parseInt(p.endTime.split(':')[0])
         ) ??
         hourlyPricing.find(p =>  
             p.dayOfWeek === dayOfWeek &&
+            p.date === null &&
             (p.fieldId === null) &&
             hour >= parseInt(p.startTime.split(':')[0]) &&
             hour <= parseInt(p.endTime.split(':')[0])
@@ -126,12 +128,14 @@ export function getPriceForHour(
     const allDaysPriceEntry = 
         hourlyPricing.find(p =>  
             p.dayOfWeek === null &&
+            p.date === null &&
             (p.fieldId === selectedFieldId) &&
             hour >= parseInt(p.startTime.split(':')[0]) &&
             hour <= parseInt(p.endTime.split(':')[0])
         ) ??
         hourlyPricing.find(p =>  
             p.dayOfWeek === null &&
+            p.date === null &&
             (p.fieldId === null) &&
             hour >= parseInt(p.startTime.split(':')[0]) &&
             hour <= parseInt(p.endTime.split(':')[0])

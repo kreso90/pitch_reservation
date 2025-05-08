@@ -240,7 +240,11 @@ export async function createHourlyPrices(prevState: any, formData: FormData) {
             startTime: startTime ?? '',
             endTime: endTime ?? '',
             date: isoString ?? null,
-            dayOfWeek: weekDay !== undefined ? parseInt(weekDay) : null,
+            dayOfWeek: (() => {
+                if (date) return null;
+                if (weekDay != null) return parseInt(weekDay);
+                return null;
+            })(),
             price: parseFloat(price ?? '0')
         },
     });
