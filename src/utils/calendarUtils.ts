@@ -81,7 +81,6 @@ export function getDayWorkingHours(
 export function getPriceForHour(
     fields: FacilityFields[],
     hourlyPricing: HourlyPricing[],
-    dayOfWeek: number,
     day: Date,
     hour: number,
     selectedFieldId?: string
@@ -107,14 +106,14 @@ export function getPriceForHour(
 
     const dayOfWeekPriceEntry = 
         hourlyPricing.find(p =>  
-            p.dayOfWeek === dayOfWeek &&
+            p.dayOfWeek === (day.getDay() + 6) % 7 &&
             p.date === null &&
             (p.fieldId === selectedFieldId) &&
             hour >= parseInt(p.startTime.split(':')[0]) &&
             hour <= parseInt(p.endTime.split(':')[0])
         ) ??
         hourlyPricing.find(p =>  
-            p.dayOfWeek === dayOfWeek &&
+            p.dayOfWeek === (day.getDay() + 6) % 7 &&
             p.date === null &&
             (p.fieldId === null) &&
             hour >= parseInt(p.startTime.split(':')[0]) &&

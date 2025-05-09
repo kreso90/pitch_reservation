@@ -106,7 +106,7 @@ export default function Calendar({ facilityData, initialFieldId, refreshFacility
                                 const streakStatus = getHourStreakPosition(reservations, slotDate);
                                 const reservationInfo = getReservationInfo(reservations, slotDate, userId ?? '');
                                 const isPrevDates = isPrevDate(slotDate);
-                                const pricingEntry = getPriceForHour(facilityData.facilityFields, facilityData.hourlyPricing, index, new Date(createDateFromStringAndNumber(day, 0)), hour, selectedFieldId)
+                                const pricingEntry = getPriceForHour(facilityData.facilityFields, facilityData.hourlyPricing, new Date(createDateFromStringAndNumber(day, 0)), hour, selectedFieldId)
 
                                 return (
                                 <div
