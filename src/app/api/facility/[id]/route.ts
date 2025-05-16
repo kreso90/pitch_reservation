@@ -1,20 +1,31 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import { authOptions } from "../../auth/[...nextauth]/route";
 
-export async function GET() {
+export async function GET(req: Request) {
+    const url = req.url.split("/");
+    const id = url[url.length - 1];
+    
+    const session = await getServerSession(authOptions);
     
     try {
-        const facility = await prisma.facility.findFirst({
+        const facility = await prisma.facility.findUnique({
+            where: { facilityId: id },
             include: {
-                workingHours: true,
-                hourlyPricing: true,
-                facilityFields: {
-                    include: {
-                        fieldReservation: true,
-                    },
+              workingHours: true,
+              hourlyPricing: true,
+              facilityFields: {
+                include: {
+                  fieldReservation: true,
                 },
+              },
             },
+        });
+
+        const user = await prisma.user.findUnique({
+            where: { id: session!.user.id },
+            include: { fieldReservation: true }
         });
 
         if (!facility) {
@@ -24,7 +35,7 @@ export async function GET() {
             );
         }
 
-        return NextResponse.json(facility);
+        return NextResponse.json({facility, user});
     } catch (error) {
         console.error('Error fetching facility data:', error);
 

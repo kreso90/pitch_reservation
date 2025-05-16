@@ -55,6 +55,7 @@ export const useCalendar = () => {
 
     const handleBoxClick = (
         userId: string,
+        facilityName: string,
         fieldId: string, 
         name: string, 
         reservationStart: Date, 
@@ -62,7 +63,7 @@ export const useCalendar = () => {
         facilityEndWorkingHours?: Date, 
         reservations?: FieldReservation[]
     ) => {
-        setReservationTime({ reservationStartTime: new Date(reservationStart), reservationEndTime: reservationEnd, reservationName: name, fieldReservationId: fieldId, reservationId: fieldId, userId: userId});
+        setReservationTime({ facilityName: facilityName, reservationStartTime: new Date(reservationStart), reservationEndTime: reservationEnd, reservationName: name, fieldReservationId: fieldId, reservationId: fieldId, userId: userId});
         setIsPopupOpen("reservation");
         setMaxHours(getMaxAvailableHours(reservations ?? [], new Date(reservationStart), combineDateAndTime(reservationStart, new Date(facilityEndWorkingHours ?? new Date()))));
     };

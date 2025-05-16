@@ -117,6 +117,7 @@ export default function Calendar({ facilityData, initialFieldId, refreshFacility
                                         ? () =>
                                             handleBoxClick(
                                                 userId ?? '',
+                                                facilityData.facilityName ?? '',
                                                 field.fieldId,
                                                 field.fieldName,
                                                 createDateFromStringAndNumber(day, hour),
@@ -171,6 +172,7 @@ export default function Calendar({ facilityData, initialFieldId, refreshFacility
                                 <p className="m-bottom-20">Do you want to reserve {reservationTime?.reservationName} on {formatDate(reservationTime?.reservationStartTime)}?</p>                    
                                 <input type="hidden" name='field_reservation_id' value={reservationTime?.fieldReservationId}/>
                                 <input type="hidden" name='user_id' value={reservationTime?.userId}/>
+                                <input type="hidden" name="facility_name" value={reservationTime?.facilityName ?? ''} />
                                 <input type="hidden" name="reservation_name" value={userName ?? 'Unknown'} />
                                 <input type="hidden" name="reservation_start" value={formatToISODateTime(formatDate(reservationTime?.reservationStartTime))} />
                                 <p className="m-bottom-5">Select number of hours</p>
@@ -191,7 +193,7 @@ export default function Calendar({ facilityData, initialFieldId, refreshFacility
                             </form>
                             :
                             <div>
-                                <p>{formMsg}</p>
+                                <p className="m-bottom-20">{formMsg}</p>
                                 <button onClick={() => {refreshFacilityData()}}>Ok</button>
                             </div> 
                         }

@@ -1,100 +1,94 @@
 "use client";
-import Calendar from "@/components/Calendar";
-import WorkingHours from "@/components/WorkingHours";
+
 import Loader from "@/components/Loader";
 import Nav from "@/components/Nav";
-import ReservationsList from "@/components/ReservationsList";
-import useFacilityData from "@/hooks/useFacilityData";
-import { useSession } from "next-auth/react";
-import HoursPrices from "@/components/HourlyPrices";
-import { Fields } from "@/components/Fields";
-import Facility from "@/components/Facility";
 import UserReservationList from "@/components/UserReservationList";
+import useFacilities from "@/hooks/useFacilities";
+
+import Link from "next/link";
 
 export default function Home() {
-    const { data: session } = useSession()
-    const { loading, facilityData, selectedFieldId, refreshFacilityData, activeView, setActiveView } = useFacilityData();
 
-    return (
-    
+  const { loading, facilities, user, activeView, setActiveView, refreshUserData } = useFacilities();
 
-    <div className="container">
-        <div className="row">
-
+  return (
+    <>
+      {loading ? (
+        <Loader />
+      ) : (
+        <div className="container">
+          <div className="row">
             <div className="main__col">
-                <Nav activeView={activeView} setActiveView={setActiveView} isAdmin={session?.user.isAdmin ?? false}/>
+               {facilities ? <Nav activeView={activeView} setActiveView={setActiveView} isAdmin={false} user={user ?? undefined}/> : null}
             </div>
-
+            
             <div className="main__col">
-            {loading ? (
-                <Loader />
-            ) : activeView === 'facility' ? (
+              
+              {activeView === 'home' && facilities ? ( <div>
+                <div className="row m-bottom-40">
+                    {facilities &&
+                    facilities?.filter((f) => f.facilityAdminId === user?.id)
+                        .length > 0 && (
+                        <div className="col m-bottom-30">
+                          <h2>My facilities</h2>
+                        </div>
+                    )}
+
+                    {facilities
+                    ?.filter((f) => f.facilityAdminId === user?.id)
+                    .map((facility) => (
+                        <div key={facility.facilityId} className="col md-4 xl-3 m-bottom-20">
+                            <Link href={`/facility/${facility.facilityId}`}>
+                            <div className="grey-box">
+                                <div className="m-bottom-20">
+                                    <h3 className="m-bottom-5">{facility.facilityName}</h3>
+                                    <p className="regular">{facility.facilityAddress}</p>
+                                </div>
+                                {facility?.facilityFieldTypes.map((type, index, arr) => (
+                                    <span key={type}>
+                                    {type}{index < arr.length - 1 ? ', ' : ''}
+                                    </span>
+                                ))}
+                            </div>
+                            </Link>
+                        </div>
+                    ))}
+                </div>
+
                 <div className="row">
-                    <div className="col md-6">
-                        <Facility 
-                        refreshFacilityData={refreshFacilityData}
-                        facilityData={facilityData} 
-                        isAdmin={session?.user.isAdmin ?? false}
-                        />
+                    <div className="col m-bottom-30">
+                        <h2>Facilities</h2>
                     </div>
-                    <div className="col md-6">
-                        <Fields 
-                        refreshFacilityData={refreshFacilityData}
-                        facilityData={facilityData} 
-                        isAdmin={session?.user.isAdmin ?? false}
-                        />
+
+                    {facilities?.filter((f) => f.facilityAdminId != user?.id).map((facility) => (
+                    <div key={facility.facilityId} className="col md-4 xl-3 m-bottom-20">
+                        <Link href={`/facility/${facility.facilityId}`}>
+                        <div className="grey-box">
+                            <div className="m-bottom-20">
+                                <h3 className="m-bottom-5">{facility.facilityName}</h3>
+                                <p className="regular">{facility.facilityAddress}</p>
+                            </div>
+                            {facility?.facilityFieldTypes.map((type, index, arr) => (
+                                <span key={type}>
+                                {type}{index < arr.length - 1 ? ', ' : ''}
+                                </span>
+                            ))}
+                        </div>
+                        </Link>
                     </div>
-                    <div className="col md-6">
-                        <HoursPrices 
-                        refreshFacilityData={refreshFacilityData}
-                        facilityData={facilityData} 
-                        isAdmin={session?.user.isAdmin ?? false}
-                        />
-                    </div>
-                    <div className="col md-6">
-                        <WorkingHours 
-                        refreshFacilityData={refreshFacilityData}
-                        facilityData={facilityData} 
-                        isAdmin={session?.user.isAdmin ?? false}
-                        />
-                    </div>
+                    ))}
                 </div>
-            ) : activeView === 'calendar' ? (
-                <Calendar 
-                facilityData={facilityData} 
-                initialFieldId={selectedFieldId}
-                refreshFacilityData={refreshFacilityData}
-                userId={session?.user.id ?? ''}
-                userName={session?.user.name ?? ''}
-                />
-            ) : (
-                <div>
-                {session?.user.isAdmin ?
-                    <ReservationsList
-                    facilityData={facilityData} 
-                    initialFieldId={selectedFieldId}
-                    refreshFacilityData={refreshFacilityData}
-                    userId={session?.user.id ?? ''}
-                    userName={session?.user.name ?? ''}
-                    />
-                    :
-                    <UserReservationList 
-                    facilityData={facilityData} 
-                    initialFieldId={selectedFieldId}
-                    refreshFacilityData={refreshFacilityData}
-                    userId={session?.user.id ?? ''}
-                    userName={session?.user.name ?? ''}
-                    />
-                }
-                </div>
-            )}
+              </div>) : activeView === 'reservations' && facilities ? (
+                  <UserReservationList 
+                  userReservations={user?.fieldReservation ?? []}
+                  refreshFacilityData={refreshUserData}/>
+              ) : null}
+              
             </div>
-
-
+          </div>
+         
         </div>
-    </div>
-   
-  
-    
+      )}
+    </>
   );
 }

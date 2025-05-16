@@ -100,7 +100,6 @@ const authOptions: NextAuthOptions = {
           id: token.id,
           randomKey: token.randomKey,
           reservations: token.reservations || [],
-          isAdmin: token.isAdmin
         },
       };
     },
@@ -112,17 +111,12 @@ const authOptions: NextAuthOptions = {
           where: { id: userId },
           include: { fieldReservation: true },
         });
-
-        const isAdmin = await prisma.facility.findFirst({
-          where: { facilityAdminId: userId },
-        });
         
         return {
           ...token,
           id: userId,
           randomKey: (user as any)?.randomKey ?? token.randomKey,
           reservations: dbUser?.fieldReservation ?? [],
-          isAdmin: Boolean(isAdmin)
         };
       }
     
@@ -133,4 +127,4 @@ const authOptions: NextAuthOptions = {
 
 const handler = NextAuth(authOptions)
 
-export { handler as GET, handler as POST }
+export { authOptions, handler as GET, handler as POST }

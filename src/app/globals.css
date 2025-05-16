@@ -45,9 +45,6 @@ a {
   transition: 0.25s;
 }
 
-a:hover{
-  color: var(--darkGrey);
-}
 
 ul{
   list-style: none;
@@ -950,6 +947,23 @@ button:hover{
 .text-left{text-align: left;}
 .text-center{text-align: center;}
 .text-right{text-align: right;}
+
+/* Home */ 
+
+.grey-box{
+  background: var(--darkGrey);
+  border: 1px solid var(--lightGrey);
+  border-radius: 5px;
+  font-size: 14px;
+  padding: 10px;
+  margin-bottom: 5px;
+  cursor: pointer;
+  transition: 0.45s;
+}
+
+.grey-box:hover{
+  background: var(--black-6);
+}
 
 /* Calendar */
 

@@ -18,6 +18,5 @@ declare module "next-auth" {
     id: string;
     reservations?: FieldReservation[];
     randomKey?: string;
-    isAdmin: boolean;
   }
 }

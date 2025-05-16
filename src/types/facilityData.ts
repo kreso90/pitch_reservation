@@ -1,4 +1,9 @@
-import { Facility, FacilityFields, FieldReservation, HourlyPricing, WorkingHours } from "@prisma/client";
+import { Facility, FacilityFields, FieldReservation, HourlyPricing, User, WorkingHours } from "@prisma/client";
+
+export type FacilityWithUser =  {
+    facility: FacilityWithFields,
+    user: UserWithReservations
+};
 
 export type FacilityWithFields = Facility & {
     workingHours: WorkingHours[]
@@ -7,3 +12,12 @@ export type FacilityWithFields = Facility & {
          fieldReservation: FieldReservation[];
     })[];
 };
+
+export type UserWithReservations = User & {
+  fieldReservation: FieldReservation[];
+};
+
+export type FacilitiesAndUserData = {
+  facilities: Facility[];
+  user: UserWithReservations;
+}

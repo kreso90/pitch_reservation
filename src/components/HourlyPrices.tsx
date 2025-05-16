@@ -45,7 +45,9 @@ const HourlyPrices = ({facilityData, refreshFacilityData, isAdmin}: HourlyPrices
     return (
     <div className="m-bottom-50">
         
-        <h2 className="m-bottom-40">Hourly prices</h2>
+        {!isAdmin && facilityData?.hourlyPricing && facilityData?.hourlyPricing.length > 0 ? (
+            <h2 className="m-bottom-40">Hourly prices</h2>
+        ) : null}
         
         <div className="m-bottom-20">
             

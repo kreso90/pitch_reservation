@@ -1,26 +1,24 @@
 import { deleteReservation } from '@/app/actions/actions';
 import useReservations from '@/hooks/useReservations';
-import { FacilityWithFields } from '@/types/facilityData';
 import { useSession } from 'next-auth/react';
-import React, { useActionState } from 'react'
+import React, { useActionState } from 'react';
 import "react-datepicker/dist/react-datepicker.css";
+import { FieldReservation } from '@prisma/client';
 
 type UserReservationListProps = {
-    facilityData: FacilityWithFields | null;
-    initialFieldId: string | null;
+    userReservations: FieldReservation[];
     refreshFacilityData: () => Promise<void>;
-    userId: string,
-    userName: string
 };
 
-export default function UserReservationList({ facilityData, refreshFacilityData }: UserReservationListProps) {
+export default function UserReservationListUserReservationList({ refreshFacilityData, userReservations }: UserReservationListProps) {
     const { handleCancelButton, isCancelPopupOpen, setIsCancelPopupOpen, reservationId } = useReservations()
 
-     const [deleteState, formDeleteAction, isDeletePending] = useActionState(
+    const [deleteState, formDeleteAction, isDeletePending] = useActionState(
         async (prevState: any, formData: FormData) => {
             const result = await deleteReservation(prevState, formData);
         
             await refreshFacilityData();
+
             return result;
         },
         null
@@ -32,7 +30,7 @@ export default function UserReservationList({ facilityData, refreshFacilityData 
         <div>
             <h2 className="m-bottom-30">My reservations</h2>
             <ul>
-                {session?.user.reservations.map((res) => {
+                {userReservations.map((res) => {
                     const start = new Date(res.reservationStartTime);
                     const end = new Date(res.reservationEndTime);
 
@@ -43,16 +41,19 @@ export default function UserReservationList({ facilityData, refreshFacilityData 
                         >
                         <div className="row">
                             <div className="col s-3">
-                            <strong>{res.reservationName}</strong>
+                                <strong>{res.reservationName}</strong>
                             </div>
                             <div className="col s-3">
+                                <p>{res.facilityName}</p>
+                            </div>
+                            <div className="col s-2">
                             {start.toLocaleDateString("hr-HR", {
                                 day: "numeric",
                                 month: "numeric",
                                 year: "numeric",
                             })}
                             </div>
-                            <div className="col s-3">
+                            <div className="col s-2">
                             {start.toLocaleTimeString([], {
                                 hour: "2-digit",
                                 minute: "2-digit",
@@ -66,7 +67,7 @@ export default function UserReservationList({ facilityData, refreshFacilityData 
                             })}
                             </div>
                             {end > new Date() && (
-                            <div className="col s-3">
+                            <div className="col s-2 text-right">
                                 <span
                                 className="red semi-bold c-pointer"
                                 onClick={() =>

@@ -49,6 +49,7 @@ export async function createUser(prevState: any, formData: FormData) {
 export async function createReservation(prevState: any, formData: FormData) {
     const id = formData.get('field_reservation_id')?.toString();
     const userId = formData.get('user_id')?.toString();
+    const facilityName = formData.get('facility_name')?.toString();
     const name = formData.get('reservation_name')?.toString();
     const reservationStart = formData.get('reservation_start')?.toString();
     const reservationEnd = formData.get('reservation_end')?.toString();
@@ -76,6 +77,7 @@ export async function createReservation(prevState: any, formData: FormData) {
                 }
             },
             reservationName: name,
+            facilityName: facilityName,
             reservationStartTime: reservationStart,
             reservationEndTime: reservationEnd,
             facilityFields: {
@@ -106,7 +108,7 @@ export async function deleteReservation(prevState: any, formData: FormData) {
     });
 
     if (deleteReservation) {
-        return "success";
+        return "Reservation canceled";
     }
 }
 

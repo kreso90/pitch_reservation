@@ -54,7 +54,9 @@ export default function WorkingHours({facilityData, refreshFacilityData, isAdmin
     return (
     <div>
        
-        <h2 className="m-bottom-40">Working hours</h2>
+        {!isAdmin && facilityData?.workingHours && facilityData?.workingHours.length > 0 ? (
+            <h2 className="m-bottom-40">Working hours</h2>
+        ) : null}
 
         <div className="m-bottom-20">
 

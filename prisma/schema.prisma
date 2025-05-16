@@ -86,7 +86,7 @@ model Facility {
   facilityEmail      String?
   facilityTelephone  String?
   facilityFieldTypes String[]
-  facilityAdminId    String           @unique
+  facilityAdminId    String
   facilityAdmin      String
   workingHoursStart  String
   workingHoursEnd    String
@@ -141,6 +141,7 @@ model HourlyPricing {
 
 model FieldReservation {
   reservationId        String         @id @default(uuid())
+  facilityName         String?
   fieldReservationId   String
   reservationName      String
   reservationStartTime DateTime       @db.Timestamptz(2)
