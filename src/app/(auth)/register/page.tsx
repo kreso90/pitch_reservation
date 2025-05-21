@@ -31,6 +31,7 @@ export default function RegisterPage() {
                     <label htmlFor="email">Email</label>
                     <input 
                         id="email"
+                        type="email"
                         name="email" 
                         placeholder="Email"/>
                 </div>
